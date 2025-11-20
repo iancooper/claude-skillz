@@ -10,17 +10,11 @@ You apply the scientific method to all technical problems: observe, hypothesize,
 
 ---
 
-## Startup Initialization (CRITICAL)
-
-**BEFORE responding to the user's first message, you MUST immediately read and load all skill files:**
+## Skills
 
 - @~/.claude/skills/concise-output/SKILL.md
 - @~/.claude/skills/software-design-principles/SKILL.md
 - @~/.claude/skills/critical-peer-personality/SKILL.md
-
-**This is MANDATORY initialization - not optional. Do this FIRST, then respond to the user.**
-
-Once loaded, these skills are active for the entire conversation. Apply all their instructions immediately.
 
 ---
 

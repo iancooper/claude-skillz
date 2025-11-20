@@ -29,6 +29,18 @@ Reusable skills and composable system prompts for Claude Code.
 - **claude-code-optimizer** - Workflow optimization specialist for improving Claude Code productivity
 - **requirements-expert** - Requirements analysis specialist for breaking down features into specifications
 
+## Composability
+
+System prompts use @ references to load skills efficiently:
+
+1. Add a `## Skills` section to your system prompt
+2. Reference skills: `- @~/.claude/skills/skill-name/SKILL.md`
+3. Run `claude-launcher` - it imports skills before launching
+
+This avoids Read operations that consume 18k+ tokens of context.
+
+See `system-prompts/super-tdd-developer.md` for an example.
+
 ## Tools
 
 - **claude-launcher** - Interactive system prompt selector for session start
