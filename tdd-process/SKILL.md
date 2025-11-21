@@ -261,6 +261,17 @@ Test IS failing. Implementing minimum code to make it pass...
         ✓ Implementation is minimum (justified)
       </post_conditions>
 
+      <pre_flight_check>
+        🚨 BEFORE announcing validation, execute these commands:
+        1. Run test command → Must see PASS output
+        2. Run compile command → Must see "Successfully" or equivalent
+        3. Run lint command → Must see success/no errors
+
+        NO "presumably". NO "should work". NO "looks like".
+        If you haven't executed it, you haven't validated it.
+        Only proceed to validation after all three commands show success.
+      </pre_flight_check>
+
       <validation_before_transition>
         🚨 ARCHITECTURAL CONSTRAINT #4: POST-CONDITION EVIDENCE LINKS 🚨
 
@@ -335,7 +346,19 @@ Test IS failing. Implementing minimum code to make it pass...
         🚨 ALWAYS run compile check AFTER test passes
         🚨 ALWAYS run lint check AFTER compile succeeds
         🚨 ALWAYS show exact success messages verbatim to user
-        🚨 ALWAYS justify why implementation is minimum
+        🚨 IMPLEMENT ONLY THE MINIMUM
+        - Justify why implementation is minimum
+        - Before writing any line: "Which assertion requires this?" No assertion = Don't write it
+        - Follow existing patterns in the codebase, but only implement what YOUR test requires. If the pattern has logic your test doesn't check, don't add it.
+
+        🚨 DON'T CHANGE TEST TO MATCH YOUR IMPLEMENTATION
+        If you implement code and the test still fails, fix the IMPLEMENTATION, not the test.
+        If you realize the test itself is wrong, that's a different cycle:
+          1. Acknowledge the test is wrong
+          2. Consider reverting your implementation
+          3. Fix the test FIRST
+          4. Re-implement with the corrected test
+        Changing test assertion to make your implementation pass = VIOLATION_DETECTED.
       </critical_rules>
 
       <transitions>
@@ -589,6 +612,7 @@ Test IS failing. Implementing minimum code to make it pass...
         - Claimed phase complete without evidence
         - Skipped test execution
         - Changed assertion when test failed
+        - Changed test assertion to match implementation (instead of fixing implementation)
       </trigger>
 
       <actions>
