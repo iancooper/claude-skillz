@@ -8,6 +8,28 @@ version: 1.0.0
 
 Professional software design patterns and principles for writing maintainable, well-structured code.
 
+## Critical Rules
+
+🚨 **Fail-fast over silent fallbacks.** Never use fallback chains (`value ?? backup ?? 'unknown'`). If data should exist, validate and throw a clear error.
+
+🚨 **No `any`. No `as`.** Type escape hatches defeat TypeScript's purpose. There's always a type-safe solution.
+
+🚨 **Make illegal states unrepresentable.** Use discriminated unions, not optional fields. If a state combination shouldn't exist, make the type system forbid it.
+
+🚨 **Inject dependencies, don't instantiate.** No `new SomeService()` inside methods. Pass dependencies through constructors.
+
+🚨 **Intention-revealing names only.** Never use `data`, `utils`, `helpers`, `handler`, `processor`. Name things for what they do in the domain.
+
+🚨 **No code comments.** Comments are a failure to express intent in code. If you need a comment to explain what code does, the code isn't clear enough—refactor it.
+
+## When This Applies
+
+- Writing new code (these are defaults, not just refactoring goals)
+- Refactoring existing code
+- Code reviews and design reviews
+- During TDD REFACTOR phase
+- When analyzing coupling and cohesion
+
 ## Core Philosophy
 
 Well-designed, maintainable code is far more important than getting things done quickly. Every design decision should favor:
@@ -456,6 +478,91 @@ function calculateDiscount(price: PositiveNumber, rate: number): Money {
 }
 ```
 
+## Prefer Immutability
+
+**Principle:** Default to immutable data. Mutation is a source of bugs—unexpected changes, race conditions, and difficult debugging.
+
+### The Problem: Mutable State
+
+```typescript
+// MUTABLE - hard to reason about
+function processOrder(order: Order): void {
+  order.status = 'processing'  // Mutates input!
+  order.items.push(freeGift)   // Side effect!
+}
+
+// Caller has no idea their object changed
+const myOrder = getOrder()
+processOrder(myOrder)
+// myOrder is now different - surprise!
+```
+
+### The Solution: Return New Values
+
+```typescript
+// IMMUTABLE - predictable
+function processOrder(order: Order): Order {
+  return {
+    ...order,
+    status: 'processing',
+    items: [...order.items, freeGift]
+  }
+}
+
+// Caller controls what happens
+const myOrder = getOrder()
+const processedOrder = processOrder(myOrder)
+// myOrder unchanged, processedOrder is new
+```
+
+### Application Rules
+
+- Prefer `const` over `let`
+- Prefer spread (`...`) over mutation
+- Prefer `map`/`filter`/`reduce` over `forEach` with mutation
+- If you must mutate, make it explicit and contained
+
+## YAGNI - You Aren't Gonna Need It
+
+**Principle:** Don't build features until they're actually needed. Speculative code is waste—it costs time to write, time to maintain, and is often wrong when requirements become clear.
+
+### The Problem: Speculative Generalization
+
+```typescript
+// YAGNI VIOLATION - over-engineered for "future" needs
+interface PaymentProcessor {
+  process(payment: Payment): Result
+  refund(payment: Payment): Result
+  partialRefund(payment: Payment, amount: Money): Result
+  schedulePayment(payment: Payment, date: Date): Result
+  recurringPayment(payment: Payment, schedule: Schedule): Result
+  // ... 10 more methods "we might need"
+}
+
+// Only ONE method is actually used today
+```
+
+### The Solution: Build What You Need Now
+
+```typescript
+// YAGNI RESPECTED - minimal interface for current needs
+interface PaymentProcessor {
+  process(payment: Payment): Result
+}
+
+// Add refund() when you actually need refunds
+// Add scheduling when you actually need scheduling
+// Not before
+```
+
+### Application Rules
+
+- Build the simplest thing that works
+- Add capabilities when requirements demand them, not before
+- "But we might need it" is not a requirement
+- Unused code is a maintenance burden and a lie about the system
+- Delete speculative code ruthlessly
+
 ## Integration with Other Skills
 
 ### With TDD Process
@@ -478,6 +585,26 @@ Activate when:
 - Refactoring existing code
 - Analyzing coupling and cohesion
 - Planning architecture changes
+
+## When Tempted to Cut Corners
+
+- If you're about to use a fallback chain (`??` chains): STOP. Silent fallbacks hide bugs. When that `'unknown'` propagates through your system and causes a failure three layers later, you'll spend hours debugging. Fail fast with a clear error now.
+
+- If you're about to use `any` or `as`: STOP. You're lying to the compiler to make an error go away. The error is telling you something—your types are wrong. Fix the types, not the symptoms.
+
+- If you're about to instantiate a dependency inside a method: STOP. You're creating tight coupling that makes testing painful and changes risky. Take 30 seconds to inject it through the constructor.
+
+- If you're about to name something `data`, `utils`, or `handler`: STOP. These names are meaningless. What does it actually DO? Name it for its purpose in the domain. Future you will thank present you.
+
+- If you're about to add a getter just to access data: STOP. Ask why the caller needs that data. Can the object do the work instead? Tell, don't ask.
+
+- If you're about to skip the refactor because "it works": STOP. Working code that's hard to change is technical debt. The refactor IS part of the work, not optional polish.
+
+- If you're about to write a comment explaining code: STOP. Comments rot—they become lies as code changes. Instead, extract a well-named function, rename a variable, or restructure the code. If the code needs explanation, the code is the problem.
+
+- If you're about to mutate a parameter: STOP. Return a new value instead. Mutation creates invisible dependencies—the caller doesn't know their data changed. Make data flow explicit.
+
+- If you're about to build something "we might need later": STOP. You're guessing at future requirements, and you're probably wrong. Build what you need now. Add capabilities when they're actually required.
 
 ## When NOT to Apply
 

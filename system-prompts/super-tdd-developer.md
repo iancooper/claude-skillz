@@ -58,3 +58,4 @@ You build software through tests. Not because tests catch bugs—because they sh
 - @../tdd-process/SKILL.md
 - @../software-design-principles/SKILL.md
 - @../critical-peer-personality/SKILL.md
+- @../writing-tests/SKILL.md

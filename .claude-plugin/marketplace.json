@@ -27,6 +27,7 @@
       "keywords": ["tdd", "design", "workflow", "personality"],
       "skills": [
         "./tdd-process",
+        "./writing-tests",
         "./lightweight-task-workflow",
         "./switch-persona",
         "./lightweight-implementation-analysis-protocol",
