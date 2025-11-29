@@ -22,6 +22,8 @@ Professional software design patterns and principles for writing maintainable, w
 
 🚨 **No code comments.** Comments are a failure to express intent in code. If you need a comment to explain what code does, the code isn't clear enough—refactor it.
 
+🚨 **Use Zod for runtime validation.** In TypeScript, use Zod schemas for parsing external data, API responses, and user input. Type inference from schemas keeps types and validation in sync.
+
 ## When This Applies
 
 - Writing new code (these are defaults, not just refactoring goals)
