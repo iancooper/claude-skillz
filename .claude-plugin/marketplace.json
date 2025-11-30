@@ -11,6 +11,14 @@
   },
   "plugins": [
     {
+      "name": "automatic-code-review",
+      "source": "./automatic-code-review",
+      "description": "Automatic code review on session stop with configurable rules",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["code-review", "quality", "hooks", "semantic-review"]
+    },
+    {
       "name": "track-and-improve",
       "source": "./track-and-improve",
       "description": "Capture mistakes and improvement opportunities with automatic 5 whys analysis",

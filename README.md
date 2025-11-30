@@ -71,6 +71,7 @@ See `system-prompts/super-tdd-developer.md` for an example.
 
 ## Plugins
 
+- **automatic-code-review** - Automatic semantic code review on session stop with configurable project-specific rules. Auto-initializes with default rules, supports any language.
 - **track-and-improve** - Capture mistakes and improvement opportunities with automatic 5 whys root cause analysis
 
 ## Tools
