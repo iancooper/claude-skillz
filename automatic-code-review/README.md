@@ -50,3 +50,7 @@ Set `"enabled": false` to disable for a project.
 ## Requirements
 
 - `jq` - Install with `brew install jq` or `apt-get install jq`
+
+## Recommendations
+
+This type of code review is useful for tasks that an LLM is best suited to. First try to create lint rules or test coverage rules. Then if those tools aren't good enough, add rules into your automatic code review.
