@@ -225,7 +225,16 @@ cmd_review() {
 Files modified since last review:
 $FILES_LIST
 
-INSTRUCTION: Use the Task tool with subagent_type "automatic-code-reviewer". Pass only the file list as the prompt. The agent will follow its configured review procedure. SHOW ALL FINDINGS TO THE USER.
+INSTRUCTION: Use the Task tool with subagent_type "automatic-code-reviewer". Pass only the file list as the prompt. The agent will follow its configured review procedure.
+
+CRITICAL: After receiving review results, you MUST:
+1. Show all findings to the user
+2. IMMEDIATELY fix ALL violations without asking for permission
+3. Treat every violation as a hard requirement - not a suggestion
+4. Do NOT ask "would you like me to fix these?" - just fix them
+5. After fixing, briefly confirm what was fixed
+
+The review findings are NON-NEGOTIABLE. Fix them all, then continue.
 EOF
 
   echo "$FILES_LIST"

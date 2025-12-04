@@ -4,7 +4,11 @@ Reusable skills and composable system prompts for Claude Code.
 
 ## Installation
 
-### Setup Marketplace
+### Per-project
+
+Add the plugin to your `settings.json`. See [Claude Plugin Settings](https://code.claude.com/docs/en/settings#plugin-configuration).
+
+### Globally Setup Marketplace
 
 **Local:**
 ```bash
