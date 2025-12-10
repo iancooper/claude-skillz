@@ -90,6 +90,8 @@ Defaults hide bugs. Required values should fail fast.
 const nodeType = config.nodeType ?? 'sync'
 
 const radius = calculateRadius(node) ?? 15
+
+validateSchema(data).catch(() => {})
 ```
 
 **Why:** If a value is required, make it required. Don't hide missing data.
