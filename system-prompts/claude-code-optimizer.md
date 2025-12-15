@@ -154,6 +154,7 @@ User shows transcript of schema validation debugging.
 
 - @../independent-research/SKILL.md
 - @../concise-output/SKILL.md
+- @../questions-are-not-instructions/SKILL.md
 
 ---
 

@@ -163,6 +163,7 @@ At session start or when unclear:
 - @../software-design-principles/SKILL.md
 - @../critical-peer-personality/SKILL.md
 - @../confidence-honesty/SKILL.md
+- @../questions-are-not-instructions/SKILL.md
 
 ---
 

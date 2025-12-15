@@ -220,13 +220,42 @@ Tasks don't duplicate PRD content. The PRD has the full context—tasks organize
 3. Sequence by dependencies and value
 4. Define verification for each slice
 
-### Vertical Over Horizontal
+### Classify Before Creating
 
-🚨 **Every task delivers working, demonstrable functionality.** Not a technical layer.
+🚨 **Before creating ANY task, classify each PRD item:**
 
-**Validation questions for every task:**
-- "If I implement ONLY this task, does something work end-to-end?" → Must be YES
-- "Can I demo this independently?" → Must be YES
+| Type | Definition | Example |
+|------|------------|---------|
+| **Milestone** | A goal or checkpoint, not work itself | "API POC complete", "Beta release" |
+| **Epic** | Large body of work, needs decomposition | "Build authentication system" |
+| **Task** | Vertical slice, independently demoable | "User can register with email" |
+
+**If it's a milestone or epic → decompose further before creating tasks.**
+
+### Task Candidate Validation (MANDATORY)
+
+🚨 **For EACH candidate task, STOP and verify ALL criteria before creating:**
+
+**Classification:**
+- [ ] Is this a task (not an epic or milestone)?
+- [ ] Can I explain what specific functionality it delivers?
+
+**Vertical Slice (INVEST: Valuable):**
+- [ ] Does something work end-to-end if ONLY this is implemented?
+- [ ] Can I demo this independently to a stakeholder?
+- [ ] Does it deliver observable value to users (not just technical progress)?
+
+**Independence (INVEST: Independent):**
+- [ ] Can this be prioritized independently?
+- [ ] Are dependencies on other tasks minimal and explicit?
+
+**Size (INVEST: Small):**
+- [ ] Can this be completed in a reasonable timeframe?
+- [ ] If not, what splitting pattern applies? (Workflow, CRUD, Business rules, Simple/complex, etc.)
+
+**If ANY checkbox fails → this is not ready to be a task. Decompose or reclassify.**
+
+### Anti-Patterns
 
 **Red flags (horizontal slicing):**
 - ❌ "Create interfaces/schemas"
@@ -235,6 +264,22 @@ Tasks don't duplicate PRD content. The PRD has the full context—tasks organize
 - ❌ "Implement data layer"
 
 **Fix:** Bundle infrastructure into the first vertical slice that needs it.
+
+**❌ PRD deliverables copied as tasks:**
+```
+Task 1: API POC
+Task 2: Library Demo
+Task 3: Full Implementation
+```
+These are milestones, not tasks. "Full Implementation" is an epic. None are vertical slices.
+
+**✅ Fix:** Decompose each milestone into vertical slices:
+```
+Milestone: API POC
+  Task 1: User can create a node with required fields
+  Task 2: User can link two nodes
+  Task 3: User can query nodes by type
+```
 
 **Example - BAD (Horizontal):**
 ```
@@ -305,3 +350,9 @@ All documents must be referenced in CLAUDE.md for discoverability.
 5. **ALWAYS capture design principles (WHY)** - Decisions and rationale, not just conclusions
 6. **ALWAYS update CLAUDE.md** - Documents must be discoverable
 7. **Stay in your lane** - Requirements only, not implementation
+
+---
+
+## Skills
+
+- @../questions-are-not-instructions/SKILL.md

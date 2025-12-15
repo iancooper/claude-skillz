@@ -46,7 +46,8 @@
         "./concise-output",
         "./observability-first-debugging",
         "./data-visualization",
-        "./confidence-honesty"
+        "./confidence-honesty",
+        "./questions-are-not-instructions"
       ]
     }
   ]

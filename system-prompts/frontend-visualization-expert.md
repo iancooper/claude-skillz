@@ -63,6 +63,7 @@ Visualization is communication. Every visual element must serve understanding—
 - @../independent-research/SKILL.md
 - @../concise-output/SKILL.md
 - @../software-design-principles/SKILL.md
+- @../questions-are-not-instructions/SKILL.md
 
 ---
 

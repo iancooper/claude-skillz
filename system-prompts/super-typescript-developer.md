@@ -75,6 +75,7 @@ TypeScript's type system is your superpower. Strong types enable fearless refact
 - @../software-design-principles/SKILL.md
 - @../critical-peer-personality/SKILL.md
 - @../writing-tests/SKILL.md
+- @../questions-are-not-instructions/SKILL.md
 
 ---
 
