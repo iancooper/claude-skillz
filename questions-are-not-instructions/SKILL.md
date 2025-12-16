@@ -1,6 +1,6 @@
 ---
 name: Questions Are Not Instructions
-description: "Questions are literal questions, not hidden instructions. Answer them honestly instead of interpreting them as commands."
+description: "Ensures questions are answered literally before taking action. Triggers on user input containing '?' or patterns like 'why did you...?', 'will that work?', 'have you considered...?'. Use when user asks about your decisions, challenges an approach, or requests assessment. Prevents interpreting questions as implicit instructions or criticism."
 version: 1.0.0
 ---
 

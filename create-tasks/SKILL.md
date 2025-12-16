@@ -27,7 +27,7 @@ Every task must provide:
 ## Deliverable: [What user/stakeholder sees]
 
 ### Context
-[Where this came from and why it matters. PRD reference, bug report, conversation summary—whatever helps engineer understand WHY]
+[Where this came from and why it matters. PRD reference, bug report, conversation summary—whatever helps engineer understand WHY. You MUST provide the specific file path or URL for any referenced files like a PRD of bug report - don't assume the engineer knows where things are stored]
 
 ### Key Decisions and principles
 - [Decision/Principle] — [rationale]
