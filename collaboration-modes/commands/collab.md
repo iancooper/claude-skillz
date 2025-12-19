@@ -107,6 +107,10 @@ If you can answer these, you can form a recommendation instead of asking for an 
 5. Don't default to familiar or easy answers - find the cutting edge
 6. Show your reasoning when you recommend
 
+Use subagents liberally. If you suspect a bit of research might uncover useful insights or better solutions, don't hesitate to use a subagent.
+
+Review what you are about to share. Identify 5-10 assumptions. Then challenge them.
+
 **Don't do this:**
 ```
 There are three ways to solve this: [a, b, c]. Which do you prefer?
