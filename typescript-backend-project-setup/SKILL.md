@@ -78,9 +78,8 @@ Create each file, explaining the key decisions.
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run lint && tsc",
     "lint": "eslint .",
-    "pretest": "npm run lint",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -104,10 +103,10 @@ npm install -D typescript vitest @vitest/coverage-v8 eslint typescript-eslint @e
 ```
 
 **Why this setup:**
-- `verify` is the hard gate - typecheck, build, knip, and tests with coverage. Pre-commit hook runs this. AI cannot bypass it.
-- `pretest` runs lint before every test run - so verify gets lint automatically via test:coverage
+- `build` includes lint - AI gets lint feedback on every build, not just when tests run. Faster feedback loop.
+- `verify` is the hard gate - typecheck, build (with lint), knip, and tests with coverage. Pre-commit hook runs this. AI cannot bypass it.
 - `lint-staged` formats staged files at commit time
-- `knip` catches unused exports and dependencies - runs as part of verify, not build (too slow for every build)
+- `knip` catches unused exports and dependencies - runs as part of verify, not every build (too slow)
 - No runtime dependencies - this is scaffolding; add domain-specific deps as needed
 
 ---
