@@ -176,6 +176,16 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        { selector: 'variable', format: ['camelCase'] },
+        { selector: 'function', format: ['camelCase'] },
+        { selector: 'parameter', format: ['camelCase'] },
+        { selector: 'classProperty', format: ['camelCase'] },
+        { selector: 'classMethod', format: ['camelCase'] },
+        { selector: 'typeLike', format: ['PascalCase'] },
+        { selector: 'enumMember', format: ['PascalCase'] },
+      ],
 
       // Forbidden patterns
       'no-restricted-syntax': [
