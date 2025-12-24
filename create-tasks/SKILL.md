@@ -25,16 +25,42 @@ Every task must provide:
 
 🚨 **NEVER create a task without validating its size first.** A PRD deliverable is NOT automatically a task—it may be an epic that needs splitting.
 
-### Example Mapping Check
+### Example Mapping Discovery
 
-Before writing any task, mentally apply Example Mapping:
+🚨 **Never copy PRD bullets verbatim.** Use Example Mapping to transform them into executable specifications.
 
-| Card | Question | Red Flag |
-|------|----------|----------|
-| 🟡 Story | Can you state it in one specific sentence? | Needs "and" or multiple clauses |
-| 🔵 Rules | How many distinct rules/constraints? | More than 3-4 rules = too big |
-| 🟢 Examples | Can you list 3-5 concrete examples? | Can't think of specific examples = unclear |
-| 🔴 Questions | Are there unresolved unknowns? | Many questions = needs spike first |
+| Card | What You Do |
+|------|-------------|
+| 🟡 **Story** | State the deliverable in one specific sentence |
+| 🔵 **Rules** | List every business rule/constraint (3-4 max per task) |
+| 🟢 **Examples** | For EACH rule: happy path + edge cases + error cases |
+| 🔴 **Questions** | Surface unknowns → resolve or spike first |
+
+**The Examples (🟢) ARE your acceptance criteria.** Write them in Given-When-Then format:
+
+```
+Given [context/precondition]
+When [action/trigger]
+Then [expected outcome]
+```
+
+**Edge case checklist** — for each rule, systematically consider:
+
+| Category | Check For |
+|----------|-----------|
+| **Input** | Empty, null, whitespace, boundaries, invalid format, special chars, unicode, too long |
+| **State** | Concurrent updates, race conditions, invalid sequences, already exists, doesn't exist |
+| **Errors** | Network failure, timeout, partial failure, invalid permissions, quota exceeded |
+
+**Example:** PRD says "User can search products"
+
+Rules identified: (1) Search by title, (2) Pagination, (3) Empty state
+
+For Rule 1 alone, edge case thinking yields:
+- Given products exist → When search → Then results (happy path)
+- Given no matches → When search → Then empty set
+- Given empty search term → When submit → Then validation error OR all products? (🔴 Question!)
+- Given special chars in search → When search → Then handled safely
 
 ### Splitting Signals (Task Too Big)
 
@@ -134,7 +160,7 @@ Every task MUST pass INVEST before creation:
 [Specific outcome in user terms]
 
 ### Acceptance Criteria
-- [Condition] → [expected result]
+- Given [context] When [action] Then [outcome]
 
 ### Dependencies
 - [What must exist first]
@@ -148,12 +174,12 @@ Every task MUST pass INVEST before creation:
 
 ## Process
 
-1. **Slice first** — Apply Example Mapping check. If task fails any splitting signal, use SPIDR to break it down before proceeding.
-2. **Name it** — Write a specific, action-oriented title. If you can't, the task isn't clear enough.
-3. **Validate size** — Must pass INVEST. Max 1 day. Must be vertical slice.
-4. Gather context (from PRD, conversation, bug report, etc.)
-5. Identify key decisions that affect implementation
-6. Define clear acceptance criteria
+1. **Slice first** — Apply Example Mapping. If task has >3-4 rules or fails splitting signals, use SPIDR to break it down.
+2. **Discover acceptance criteria** — For each rule: generate happy path, edge cases, error cases using the checklist. Write as Given-When-Then. Surface questions.
+3. **Name it** — Write a specific, action-oriented title. If you can't, the task isn't clear enough.
+4. **Validate size** — Must pass INVEST. Max 1 day. Must be vertical slice.
+5. Gather context (from PRD, conversation, bug report, etc.)
+6. Identify key decisions that affect implementation
 7. Find related code/patterns in the codebase
 8. Specify verification commands
 9. Output task using template
