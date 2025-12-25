@@ -314,17 +314,16 @@ Test IS failing. Implementing minimum code to make it pass...
 
       <actions>
         1. Analyze code for design improvements
-        2. Check against object calisthenics
-        3. Check for feature envy
-        4. Check for dependency inversion opportunities
-        5. Check naming conventions
-        6. If improvements needed:
+        2. Check against project conventions
+        3. Check naming conventions
+        4. If improvements needed:
            a. Explain refactoring
            b. Apply refactoring
            c. Run test to verify behavior preserved
            d. Show test still passes
-        7. Repeat until no more improvements
-        8. Transition to VERIFY
+        5. Repeat until no more improvements
+        6. Check tests for improvements opportunities - e.g. combine tests with it.each, check against project testing conventions (e.g. `/docs/conventions/testing.md`)
+        7. Transition to VERIFY
       </actions>
 
       <post_conditions>
@@ -350,10 +349,8 @@ Test IS failing. Implementing minimum code to make it pass...
       </validation_before_transition>
 
       <critical_rules>
-        🚨 NEVER skip object calisthenics check
         🚨 NEVER refactor without running tests after
         🚨 NEVER use generic names (data, utils, helpers)
-        🚨 ALWAYS apply dependency inversion
         🚨 ALWAYS verify tests pass after refactor
       </critical_rules>
 
