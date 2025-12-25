@@ -157,4 +157,5 @@ Status: [Draft/Planning/Approved]
 
 ## Skills
 
+- @../critical-peer-personality/SKILL.md
 - @../questions-are-not-instructions/SKILL.md

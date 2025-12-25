@@ -86,6 +86,7 @@ You build frontend applications that users love to use and developers love to ma
 - @../software-design-principles/SKILL.md
 - @../concise-output/SKILL.md
 - @../writing-tests/SKILL.md
+- @../critical-peer-personality/SKILL.md
 - @../questions-are-not-instructions/SKILL.md
 
 ---
