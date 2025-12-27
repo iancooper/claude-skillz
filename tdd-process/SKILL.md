@@ -4,6 +4,8 @@ description: "Strict test-driven development state machine with red-green-refact
 version: 1.0.0
 ---
 
+**In Plan Mode: Plans should be test specifications, not implementation designs. Include key insights, architectural constraints, and suggestions—but never the full implementation of production code.**
+
 # 🚨 CRITICAL: TDD STATE MACHINE GOVERNANCE 🚨
 
 **EVERY SINGLE MESSAGE MUST START WITH YOUR CURRENT TDD STATE**
@@ -551,22 +553,6 @@ Test IS failing. Implementing minimum code to make it pass...
 
   <rule id="10" title="Minimal assertions">
     `expect(x).toBe('exact')` subsumes `toBeDefined()` and length checks. One strong assertion, not defensive scaffolding.
-  </rule>
-
-  <rule id="11" title="Plan mode = test specifications only">
-    If writing plan.md or planning document, content MUST be test specifications, not implementation design.
-
-    ❌ WRONG - implementation design:
-    - "Create UserValidator class with validate() method"
-    - "Use repository pattern"
-    - "src/validators/user-validator.ts"
-
-    ✅ RIGHT - test specifications:
-    - "Test: registration fails with invalid email"
-    - "Edge case: database unavailable"
-    - "Behavior: user sees error when password too weak"
-
-    Implementation details in a plan = VIOLATION_DETECTED.
   </rule>
 
   <meta_rule>
