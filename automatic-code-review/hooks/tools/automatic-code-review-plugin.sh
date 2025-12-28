@@ -229,18 +229,26 @@ INSTRUCTION: Use the Task tool with subagent_type "automatic-code-reviewer". Pas
 
 After receiving review results:
 1. Show all findings to the user
-2. Evaluate each finding critically. Valid reasons to skip a finding:
-   - Conflicts with explicit product requirements
-   - No better solution exists (you tried, can't find one)
-   - Would introduce inconsistency with the rest of the codebase
-   - Other strong technical justification
-3. For each finding, decide:
-   - CLEAR FIX: No reason to skip → fix it
-   - CLEAR SKIP: Strong justification exists → skip it, explain why
-   - UNCERTAIN: Not sure → ASK the user before deciding
+2. Evaluate each finding against ONE heuristic: "What results in highest quality code?"
+
+   The ONLY valid reasons to skip feedback:
+   - IMPOSSIBLE: You tried to fix it and cannot satisfy the feedback, product requirements, lint rules, AND test coverage simultaneously. You must have actually attempted the fix.
+   - CONFLICTS WITH REQUIREMENTS: The feedback directly contradicts explicit product requirements
+   - MAKES CODE WORSE: Applying the feedback would genuinely degrade code quality
+
+   NEVER VALID (reject these excuses from yourself):
+   - "Too much time" / "too complex" → not your call, do the work
+   - "Out of scope" → if you touched the code, it's in scope
+   - "Inconsistent with existing code" → fix the existing code too
+   - Any argument that results in lower quality code
+
+3. For each finding:
+   - NO VALID SKIP REASON → fix it
+   - VALID SKIP REASON → skip it, cite which reason + specific justification
+   - UNCERTAIN → ASK the user
 4. Summarize: what was fixed, what was skipped (and why), what needs user decision
 
-When in doubt, ask. Don't blindly follow review feedback, but don't ignore it without justification either.
+Default to fixing. When in doubt, ask the user.
 EOF
 
   echo "$FILES_LIST"
