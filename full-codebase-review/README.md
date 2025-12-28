@@ -80,36 +80,6 @@ Same as `automatic-code-review`:
 - Duplicated Code
 - Suggested convention updates
 
-## CI/CD Integration
-
-Run periodic reviews via GitHub Actions:
-
-```yaml
-name: Weekly Codebase Review
-on:
-  schedule:
-    - cron: '0 9 * * 1'  # Monday 9am
-  workflow_dispatch:
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - run: npm install -g @anthropic-ai/claude-code
-      - name: Run full review
-        run: claude -p "/full-review --report --issue"
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Commit report
-        run: |
-          git add docs/reviews/
-          git commit -m "Weekly codebase review $(date +%Y-%m-%d)" || true
-          git push
-```
-
 ## Report Format
 
 ```markdown
@@ -134,7 +104,7 @@ jobs:
 
 | Feature | automatic-code-review | full-codebase-review |
 |---------|----------------------|---------------------|
-| Trigger | Session end (PostToolUse hook) | Manual (`/full-review`) or CI |
+| Trigger | Session end (PostToolUse hook) | Manual (`/full-review`) |
 | Scope | Modified files only | Entire codebase |
 | Rules | `.claude/automatic-code-review/rules.md` | Same |
 | Agent | `automatic-code-reviewer` | Same (reused) |
@@ -143,5 +113,4 @@ jobs:
 ## Tips
 
 - **Large codebases**: Use `--scope` to review incrementally
-- **CI integration**: Run weekly to catch drift
 - **Track progress**: Compare reports over time in `docs/reviews/`
