@@ -8,6 +8,11 @@ DEBUG_OUTPUT="/tmp/claude-launcher-debug.md"
 LAUNCHER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_PROMPTS_DIR="$LAUNCHER_DIR/system-prompts"
 
+# Check if fzf is available for interactive selection
+has_fzf() {
+    command -v fzf >/dev/null 2>&1
+}
+
 # Process @ references (single level only)
 process_imports() {
     local file="$1"
@@ -138,48 +143,105 @@ if [ ${#all_prompts[@]} -eq 0 ]; then
     exit 1
 fi
 
-# Display menu with headings
-echo "Select a Claude Code system prompt:"
-echo ""
+# Select prompt using fzf (if available) or fallback to numbered menu
+if has_fzf; then
+    # Build selection list with 3-char source prefixes
+    fzf_items=()
 
-counter=1
-
-if [ ${#global_prompts[@]} -gt 0 ]; then
-    echo "$PROMPTS_DIR"
-    echo ""
     for prompt in "${global_prompts[@]}"; do
-        echo "$counter) $prompt"
-        ((counter++))
+        fzf_items+=("SYS  $prompt")
     done
-    echo ""
-fi
 
-if [ ${#project_prompts[@]} -gt 0 ]; then
-    echo "$PROJECT_PROMPTS_DIR"
-    echo ""
     for prompt in "${project_prompts[@]}"; do
-        echo "$counter) $prompt"
-        ((counter++))
+        fzf_items+=("CSK  $prompt")
     done
-    echo ""
-fi
 
-# Read selection
-while true; do
-    read -p "Enter number (or 'q' to cancel): " selection
+    total_count=${#fzf_items[@]}
 
-    if [[ "$selection" == "q" ]]; then
+    # Build header with key and spacing
+    header="Select a Claude Code system prompt ($total_count total)
+
+  SYS = $PROMPTS_DIR
+  CSK = $PROJECT_PROMPTS_DIR
+"
+
+    # Use fzf for interactive selection (mouse enabled by default)
+    # Styling inspired by Claude Code's clean aesthetic
+    selection=$(printf '%s\n' "${fzf_items[@]}" | fzf --reverse --height=60% \
+        --header="$header" \
+        --header-first \
+        --color="bg+:#2d2d2d,fg+:#ffffff,pointer:#ff9500,prompt:#888888,header:#cccccc,hl:#ff9500,hl+:#ff9500" \
+        --prompt="  " \
+        --pointer="›" \
+        --margin="1,2" \
+        --no-info)
+
+    # Handle cancellation
+    if [ -z "$selection" ]; then
         echo "Cancelled"
         exit 0
-    elif [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le ${#all_prompts[@]} ]; then
-        selected_index=$((selection - 1))
-        selected_file="${all_files[$selected_index]}"
-        selected_name="${all_prompts[$selected_index]}"
-        break
-    else
-        echo "Invalid selection. Please try again."
     fi
-done
+
+    # Extract the prompt name (remove 3-char prefix and spacing)
+    selected_name=$(echo "$selection" | sed 's/^[A-Z]\{3\}  //')
+
+    # Find matching file
+    for i in "${!all_prompts[@]}"; do
+        if [ "${all_prompts[$i]}" == "$selected_name" ]; then
+            selected_file="${all_files[$i]}"
+            break
+        fi
+    done
+else
+    # Fallback: numbered menu for systems without fzf
+    echo ""
+    echo -e "\033[33m┌─────────────────────────────────────────────────────────┐\033[0m"
+    echo -e "\033[33m│\033[0m  💡 Install fzf for interactive selection:             \033[33m│\033[0m"
+    echo -e "\033[33m│\033[0m     \033[1mbrew install fzf\033[0m                                    \033[33m│\033[0m"
+    echo -e "\033[33m└─────────────────────────────────────────────────────────┘\033[0m"
+    echo ""
+    echo "Select a Claude Code system prompt:"
+    echo ""
+
+    counter=1
+
+    if [ ${#global_prompts[@]} -gt 0 ]; then
+        echo "$PROMPTS_DIR"
+        echo ""
+        for prompt in "${global_prompts[@]}"; do
+            echo "$counter) $prompt"
+            ((counter++))
+        done
+        echo ""
+    fi
+
+    if [ ${#project_prompts[@]} -gt 0 ]; then
+        echo "$PROJECT_PROMPTS_DIR"
+        echo ""
+        for prompt in "${project_prompts[@]}"; do
+            echo "$counter) $prompt"
+            ((counter++))
+        done
+        echo ""
+    fi
+
+    # Read selection
+    while true; do
+        read -p "Enter number (or 'q' to cancel): " selection
+
+        if [[ "$selection" == "q" ]]; then
+            echo "Cancelled"
+            exit 0
+        elif [[ "$selection" =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le ${#all_prompts[@]} ]; then
+            selected_index=$((selection - 1))
+            selected_file="${all_files[$selected_index]}"
+            selected_name="${all_prompts[$selected_index]}"
+            break
+        else
+            echo "Invalid selection. Please try again."
+        fi
+    done
+fi
 
 echo ""
 echo "Selected: $selected_name"
