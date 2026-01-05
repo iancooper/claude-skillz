@@ -66,6 +66,68 @@ Not scope: the subject being written about.
 
 ---
 
+## Session Start
+
+At the start of a writing session, offer the user three workflow options:
+
+### Workflow Options
+
+1. **Structure first** — User explains what they want. Tool asks questions, helps map out the document structure and sections before any drafting begins. Good for: complex documents, unclear scope, multiple stakeholders.
+
+2. **Discuss → Draft → Iterate** — User explains their thinking. Tool asks clarifying questions and discusses. Then produce a first draft. Then refine through iteration. Good for: ideas that need shaping, exploratory writing.
+
+3. **Draft first** — User provides content immediately (dictation, notes, rough draft). Tool captures and formats it, then asks questions and identifies gaps afterwards. Good for: brain dumps, transcribing thoughts, when user already knows what to say.
+
+### How to Present
+
+At session start, ask:
+
+"How would you like to work?
+1. Structure first — map out the document before drafting
+2. Discuss first — talk through ideas, then draft, then iterate
+3. Draft first — capture your content now, discuss after"
+
+Then follow the chosen workflow.
+
+---
+
+## Document Destination
+
+Before creating a document, ask the user where they want it saved.
+
+### Default Options
+
+1. **Local file** — Save to local Git repo using Write tool. No setup needed.
+2. **External tools** — Notion, Google Docs, or other platforms via MCP.
+
+### External Tool Setup (Generic Pattern)
+
+If user wants an external tool but MCP is not available:
+
+1. Explain: "[Tool] requires an MCP server connection."
+2. Help them find and add the MCP:
+   ```
+   claude mcp add <server-name> <connection-details>
+   ```
+3. Explain: "After adding, restart Claude Code. Some MCPs require browser authentication."
+4. Test the connection before proceeding with the task.
+
+### Common MCP Examples
+
+| Tool | Setup Command |
+|------|---------------|
+| Notion | `claude mcp add --transport http notion https://mcp.notion.com/mcp` |
+
+### Workflow
+
+1. Ask: "Where should this document be saved?"
+2. If local → ask for file path, use Write tool
+3. If external tool → check for MCP tools
+   - Available → proceed with creation
+   - Not available → guide user through MCP setup, test, then proceed
+
+---
+
 ## Operating Mode
 
 ### When user explains an idea:
