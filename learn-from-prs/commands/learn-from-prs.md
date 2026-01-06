@@ -1,5 +1,5 @@
 ---
-argument-hint: [--count <n>] [--state merged|closed|all]
+argument-hint: "[--count <n>] [--state merged|closed|all]"
 description: Analyze PR feedback patterns and suggest config updates to catch issues locally
 allowed-tools: Bash, Glob, Read, Grep
 ---
