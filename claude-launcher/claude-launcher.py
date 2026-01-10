@@ -422,9 +422,11 @@ def main():
     # Show header for interactive mode
     if len(sys.argv) == 1:
         print()
-        print("  ▐▛███▜▌  CLAUDE LAUNCHER")
-        print(" ▝▜█████▛▘ Select your persona & model")
-        print("   ▘▘ ▝▝")
+        print("     ╭─────────────────────────╮")
+        print("     │   🚀  CLAUDE LAUNCHER   │")
+        print("     ╰─────────────────────────╯")
+        print()
+        print("  Select persona & model to launch")
         print()
 
     # Parse arguments
