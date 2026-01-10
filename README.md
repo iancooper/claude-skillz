@@ -57,14 +57,6 @@ brew install fzf  # macOS
 | `uix` | UI/UX Design Leader | Visual design & brand identity |
 | `gen` | Generalist Robot | Neutral assistant (default persona) |
 
-### Model Shortcuts
-
-| Code | Model |
-|------|-------|
-| `haik` | Claude 3.5 Haiku |
-| `sonn` | Claude 3.5 Sonnet |
-| `opus` | Claude 3.5 Opus |
-
 ---
 
 ## Installation
