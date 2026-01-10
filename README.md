@@ -40,24 +40,7 @@ alias cl='python3 /path/to/claude-skillz/claude-launcher/claude-launcher.py'
 brew install fzf  # macOS
 ```
 
-You can [add your own personas](claude-launcher/README.md#adding-your-own-personas) with frontmatter metadata.
-
-### Persona Shortcuts
-
-| Code | Persona | Purpose |
-|------|---------|---------|
-| `tdd` | Super TDD Developer | Red-green-refactor cycles with 11 enforced rules |
-| `opt` | Claude Code Optimizer | Workflow optimization & Claude Code mastery |
-| `prd` | PRD Expert | Product requirements & specifications |
-| `arc` | Strategic Architect | System design for scale & evolution |
-| `doc` | Documentation Expert | Clear technical documentation |
-| `rct` | Super React Developer | React/frontend development |
-| `inv` | Technical Investigator | Systematic debugging & investigation |
-| `wrt` | Writing Tool | Structured writing assistance |
-| `tsc` | Super TypeScript Developer | TypeScript type system mastery |
-| `viz` | Frontend Visualization Expert | Data visualization & charts |
-| `uix` | UI/UX Design Leader | Visual design & brand identity |
-| `gen` | Generalist Robot | Neutral assistant (default persona) |
+See [available personas](#system-prompts) below. You can [add your own](claude-launcher/README.md#adding-your-own-personas).
 
 ---
 
@@ -152,27 +135,7 @@ Skills are reusable behavioral instructions loaded into personas. Load them with
 
 ### Composability
 
-System prompts use @ references to load skills efficiently:
-
-1. Add frontmatter metadata (name + shortcut):
-   ```markdown
-   ---
-   name: My Custom Persona
-   shortcut: cst
-   ---
-   ```
-
-2. Add a `## Skills` section to reference skills:
-   ```markdown
-   ## Skills
-
-   - @../independent-research/SKILL.md
-   - @../concise-output/SKILL.md
-   ```
-
-3. Run `cl cst` - the launcher processes @ references before launching
-
-**Why this matters:** @ reference processing during launcher startup means skills are embedded in the system prompt, not loaded via Read operations. This avoids wasting 18k+ tokens of context window.
+System prompts use @ references to load skills. See [CLAUDE.md](CLAUDE.md) for composability guidelines and [launcher docs](claude-launcher/README.md#adding-your-own-personas) for creating custom personas.
 
 ## Plugins
 
