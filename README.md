@@ -139,27 +139,48 @@ Skills are reusable behavioral instructions loaded into personas. Load them with
 
 ## System Prompts
 
-- **super-tdd-developer** - TDD/DDD expert that auto-loads tdd-process, software-design-principles, and critical-peer-personality skills
-- **claude-code-optimizer** - Workflow optimization specialist for improving Claude Code productivity
-- **requirements-expert** - Requirements analysis specialist for breaking down features into specifications
+12 pre-built personas ready to use via `cl` shortcuts. Each auto-loads relevant skills:
+
+| Shortcut | Persona | Skills Loaded |
+|----------|---------|--------------|
+| `tdd` | Super TDD Developer | tdd-process, software-design-principles, critical-peer-personality |
+| `opt` | Claude Code Optimizer | independent-research, critical-peer-personality, concise-output |
+| `prd` | PRD Expert | independent-research, concise-output |
+| `arc` | Strategic Architect | software-design-principles, lightweight-design-analysis |
+| `doc` | Documentation Expert | concise-output, questions-are-not-instructions |
+| `rct` | Super React Developer | software-design-principles, critical-peer-personality |
+| `inv` | Technical Investigator | observability-first-debugging, independent-research |
+| `wrt` | Writing Tool | concise-output, questions-are-not-instructions |
+| `tsc` | Super TypeScript Developer | software-design-principles, critical-peer-personality |
+| `viz` | Frontend Visualization Expert | data-visualization, software-design-principles |
+| `uix` | UI/UX Design Leader | software-design-principles, concise-output |
+| `gen` | Generalist Robot | independent-research, questions-are-not-instructions, concise-output, software-design-principles, confidence-honesty |
 
 ### Composability
 
 System prompts use @ references to load skills efficiently:
 
-1. Add a `## Skills` section to your system prompt
-2. Reference skills: `- @~/.claude/skills/skill-name/SKILL.md`
-3. Run `claude-launcher` - it imports skills before launching
+1. Add frontmatter metadata (name + shortcut):
+   ```markdown
+   ---
+   name: My Custom Persona
+   shortcut: cst
+   ---
+   ```
 
-This avoids Read operations that consume 18k+ tokens of context.
+2. Add a `## Skills` section to reference skills:
+   ```markdown
+   ## Skills
 
-See `system-prompts/super-tdd-developer.md` for an example.
+   - @../independent-research/SKILL.md
+   - @../concise-output/SKILL.md
+   ```
+
+3. Run `cl cst` - the launcher processes @ references before launching
+
+**Why this matters:** @ reference processing during launcher startup means skills are embedded in the system prompt, not loaded via Read operations. This avoids wasting 18k+ tokens of context window.
 
 ## Plugins
 
-- **automatic-code-review** - Automatic semantic code review on session stop with configurable project-specific rules. Auto-initializes with default rules, supports any language.
 - **track-and-improve** - Capture mistakes and improvement opportunities with automatic 5 whys root cause analysis
-
-## Tools
-
-- **claude-launcher** - Interactive system prompt selector for session start
+- **automatic-code-review** - Automatic semantic code review on session stop with configurable project-specific rules. Auto-initializes with default rules, supports any language.
