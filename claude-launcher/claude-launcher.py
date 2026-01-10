@@ -284,13 +284,14 @@ def resolve_args(args: list, personas: Dict[str, Path]) -> Tuple[Path, str]:
 # Import Processing
 # ============================================================================
 
-def process_imports(file_path: Path) -> str:
+def process_imports(file_path: Path, persona_name: str) -> str:
     """
     Process @ references in system prompt file.
 
     - Skips frontmatter (---...---)
     - Expands @ references to skill content
     - Adds header with skill manifest
+    - Adds persona prefix instruction
     """
     result = []
     imports = []
@@ -352,7 +353,17 @@ def process_imports(file_path: Path) -> str:
         header += "\n---\n\n"
 
     # Add system instructions
-    header += """# System Instructions
+    header += f"""# System Instructions
+
+## Message Prefix
+
+**CRITICAL**: All messages must start with [{persona_name}] on its own line, followed by the response content.
+
+Example:
+```
+[{persona_name}]
+Your response content here...
+```
 
 ## Precedence and Introduction
 
@@ -448,7 +459,7 @@ def main():
 
     # Process imports
     print("Processing system prompt...", file=sys.stderr)
-    system_prompt = process_imports(selected_file)
+    system_prompt = process_imports(selected_file, persona_name)
 
     # Save debug output
     with open(DEBUG_OUTPUT, 'w') as f:
