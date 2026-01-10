@@ -323,7 +323,9 @@ def process_imports(file_path: Path, persona_name: str) -> str:
 
                 import_path = Path(import_path)
                 if import_path.exists():
-                    print(f"  ✓ Found: {import_path.name}", file=sys.stderr)
+                    # Show parent directory name (skill name) instead of just filename
+                    skill_name = import_path.parent.name if import_path.name == "SKILL.md" else import_path.name
+                    print(f"  ✓ Found: {skill_name}", file=sys.stderr)
                     imports.append(str(import_path))
                     with open(import_path) as skill_file:
                         result.append(skill_file.read())
