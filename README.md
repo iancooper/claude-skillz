@@ -116,22 +116,22 @@ Skills are reusable behavioral instructions loaded into personas. Load them with
 
 ## System Prompts
 
-12 pre-built personas ready to use via `cl` shortcuts. Each auto-loads relevant skills:
+12 pre-built personas ready to use via `cl` shortcuts:
 
-| Shortcut | Persona | Skills Loaded |
-|----------|---------|--------------|
-| `tdd` | Super TDD Developer | tdd-process, software-design-principles, critical-peer-personality |
-| `opt` | Claude Code Optimizer | independent-research, critical-peer-personality, concise-output |
-| `prd` | PRD Expert | independent-research, concise-output |
-| `arc` | Strategic Architect | software-design-principles, lightweight-design-analysis |
-| `doc` | Documentation Expert | concise-output, questions-are-not-instructions |
-| `rct` | Super React Developer | software-design-principles, critical-peer-personality |
-| `inv` | Technical Investigator | observability-first-debugging, independent-research |
-| `wrt` | Writing Tool | concise-output, questions-are-not-instructions |
-| `tsc` | Super TypeScript Developer | software-design-principles, critical-peer-personality |
-| `viz` | Frontend Visualization Expert | data-visualization, software-design-principles |
-| `uix` | UI/UX Design Leader | software-design-principles, concise-output |
-| `gen` | Generalist Robot | independent-research, questions-are-not-instructions, concise-output, software-design-principles, confidence-honesty |
+| Shortcut | Persona |
+|----------|---------|
+| `tdd` | [Super TDD Developer](system-prompts/super-tdd-developer.md) |
+| `opt` | [Claude Code Optimizer](system-prompts/claude-code-optimizer.md) |
+| `prd` | [PRD Expert](system-prompts/prd-expert.md) |
+| `arc` | [Strategic Architect](system-prompts/strategic-architect.md) |
+| `doc` | [Documentation Expert](system-prompts/documentation-expert.md) |
+| `rct` | [Super React Developer](system-prompts/super-react-developer.md) |
+| `inv` | [Technical Investigator](system-prompts/technical-investigator.md) |
+| `wrt` | [Writing Tool](system-prompts/writing-tool.md) |
+| `tsc` | [Super TypeScript Developer](system-prompts/super-typescript-developer.md) |
+| `viz` | [Frontend Visualization Expert](system-prompts/frontend-visualization-expert.md) |
+| `uix` | [UI/UX Design Leader](system-prompts/ui-design-expert.md) |
+| `gen` | [Generalist Robot](system-prompts/generalist-robot.md) |
 
 ### Composability
 
