@@ -36,8 +36,8 @@ $ cl opus
 ```bash
 alias cl='python3 /path/to/claude-skillz/claude-launcher/claude-launcher.py'
 
-# Optional: Install rich for colored tables in interactive mode
-pip install rich
+# Optional: Install fzf for interactive fuzzy search
+brew install fzf  # macOS
 ```
 
 ### Persona Shortcuts

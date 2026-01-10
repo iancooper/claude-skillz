@@ -3,12 +3,13 @@
 Python CLI that launches Claude Code with system prompts and models. Two-step interactive selection or direct shortcuts.
 
 **Features:**
-- Interactive 2-step selection (persona → model)
+- Interactive fuzzy search with fzf (type to filter, arrow keys to select)
 - Shortcut mode: `cl tdd opus` (persona + model, order-independent)
 - Model shortcuts: `cl haik`, `cl sonn`, `cl opus` (uses default persona)
 - Conflict detection with prominent warnings
 - System prompt composability with @ skill imports
 - Exports CLAUDE_PERSONA for status line display
+- Zero Python dependencies (fzf optional for better UX)
 
 **Discovers system prompts from:**
 - `~/.claude/system-prompts` (global)
@@ -27,15 +28,15 @@ alias cl='python3 /path/to/claude-launcher/claude-launcher.py'
 
 Or use the full path: `python3 claude-launcher.py`
 
-### Optional: Rich for Better UX
+### Optional: fzf for Interactive UX
 
-For beautifully formatted tables in interactive mode:
+For fuzzy search interactive selection (type to filter, arrow keys):
 
 ```bash
-pip install rich
+brew install fzf  # macOS
 ```
 
-Without `rich`, the launcher works with plain text tables. With it, you get colored output and styled tables.
+Without `fzf`, the launcher falls back to plain numbered menu (type number).
 
 ### Configuration
 
