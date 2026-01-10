@@ -105,6 +105,31 @@ def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
 # CLI Interface
 # ============================================================================
 
+def has_fzf() -> bool:
+    """Check if fzf is available."""
+    try:
+        result = subprocess.run(["which", "fzf"], capture_output=True)
+        return result.returncode == 0
+    except:
+        return False
+
+
+def fzf_select(items: list, prompt: str) -> Optional[str]:
+    """Use fzf for interactive selection."""
+    try:
+        result = subprocess.run(
+            ["fzf", "--prompt", f"{prompt} > ", "--height", "40%", "--reverse"],
+            input="\n".join(items),
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+        return None
+    except:
+        return None
+
+
 def interactive_select(personas: Dict[str, Path]) -> Tuple[Path, str]:
     """
     Interactive 2-step selection: persona, then model.
@@ -112,82 +137,120 @@ def interactive_select(personas: Dict[str, Path]) -> Tuple[Path, str]:
     Returns:
         (selected_file, selected_model_key)
     """
+    use_fzf = has_fzf()
+
     # Step 1: Select persona
     persona_list = sorted(personas.keys())
 
-    if RICH_AVAILABLE:
-        print()
-        table = Table(title="Select Persona (or 'q' to cancel)")
-        table.add_column("#", style="cyan")
-        table.add_column("Shortcut", style="magenta")
-        table.add_column("Name", style="green")
-
+    if use_fzf:
+        # Build fzf items with numbers, shortcuts, and names
+        fzf_items = []
         for i, shortcut in enumerate(persona_list, 1):
             file_path = personas[shortcut]
             metadata = parse_frontmatter(file_path)
             name = metadata.get("name", file_path.stem)
-            table.add_row(str(i), shortcut, name)
+            fzf_items.append(f"{i}) {shortcut:<4} → {name}")
 
-        console.print(table)
+        selected = fzf_select(fzf_items, "Select persona")
+        if not selected:
+            print("Cancelled")
+            sys.exit(0)
+
+        # Extract shortcut from selection (skip number prefix)
+        selected_shortcut = selected.split(")")[1].split("→")[0].strip()
+        selected_persona = personas[selected_shortcut]
+
     else:
-        print("\nSelect persona (or 'q' to cancel):")
-        for i, shortcut in enumerate(persona_list, 1):
-            file_path = personas[shortcut]
-            metadata = parse_frontmatter(file_path)
-            name = metadata.get("name", file_path.stem)
-            print(f"  {i}) {shortcut:<4} → {name}")
+        # Fallback to numbered menu (rich or plain)
+        if RICH_AVAILABLE:
+            print()
+            table = Table(title="Select Persona (or 'q' to cancel)")
+            table.add_column("#", style="cyan")
+            table.add_column("Shortcut", style="magenta")
+            table.add_column("Name", style="green")
 
-    while True:
-        try:
-            choice = input("\nEnter number: ").strip()
-            if choice.lower() == 'q':
-                print("Cancelled")
-                sys.exit(0)
+            for i, shortcut in enumerate(persona_list, 1):
+                file_path = personas[shortcut]
+                metadata = parse_frontmatter(file_path)
+                name = metadata.get("name", file_path.stem)
+                table.add_row(str(i), shortcut, name)
 
-            idx = int(choice) - 1
-            if 0 <= idx < len(persona_list):
-                selected_persona = personas[persona_list[idx]]
-                break
-            else:
-                print("Invalid selection. Try again.")
-        except ValueError:
-            print("Invalid input. Try again.")
+            console.print(table)
+        else:
+            print("\nSelect persona (or 'q' to cancel):")
+            for i, shortcut in enumerate(persona_list, 1):
+                file_path = personas[shortcut]
+                metadata = parse_frontmatter(file_path)
+                name = metadata.get("name", file_path.stem)
+                print(f"  {i}) {shortcut:<4} → {name}")
+
+        while True:
+            try:
+                choice = input("\nEnter number: ").strip()
+                if choice.lower() == 'q':
+                    print("Cancelled")
+                    sys.exit(0)
+
+                idx = int(choice) - 1
+                if 0 <= idx < len(persona_list):
+                    selected_persona = personas[persona_list[idx]]
+                    break
+                else:
+                    print("Invalid selection. Try again.")
+            except ValueError:
+                print("Invalid input. Try again.")
 
     # Step 2: Select model
     model_list = list(MODELS.keys())
 
-    if RICH_AVAILABLE:
-        print()
-        table = Table(title="Select Model (or 'q' to cancel)")
-        table.add_column("#", style="cyan")
-        table.add_column("Shortcut", style="magenta")
-        table.add_column("Model", style="green")
-
+    if use_fzf:
+        # Build fzf items for models with numbers
+        fzf_items = []
         for i, model_key in enumerate(model_list, 1):
-            table.add_row(str(i), model_key, MODELS[model_key])
+            fzf_items.append(f"{i}) {model_key:<4} → {MODELS[model_key]}")
 
-        console.print(table)
+        selected = fzf_select(fzf_items, "Select model")
+        if not selected:
+            print("Cancelled")
+            sys.exit(0)
+
+        # Extract model key from selection (skip number prefix)
+        selected_model = selected.split(")")[1].split("→")[0].strip()
+
     else:
-        print("\nSelect model (or 'q' to cancel):")
-        for i, model_key in enumerate(model_list, 1):
-            print(f"  {i}) {model_key:<4} → {MODELS[model_key]}")
+        # Fallback to numbered menu (rich or plain)
+        if RICH_AVAILABLE:
+            print()
+            table = Table(title="Select Model (or 'q' to cancel)")
+            table.add_column("#", style="cyan")
+            table.add_column("Shortcut", style="magenta")
+            table.add_column("Model", style="green")
 
-    selected_model = None
-    while True:
-        try:
-            choice = input("\nEnter number: ").strip()
-            if choice.lower() == 'q':
-                print("Cancelled")
-                sys.exit(0)
+            for i, model_key in enumerate(model_list, 1):
+                table.add_row(str(i), model_key, MODELS[model_key])
 
-            idx = int(choice) - 1
-            if 0 <= idx < len(model_list):
-                selected_model = model_list[idx]
-                break
-            else:
-                print("Invalid selection. Try again.")
-        except ValueError:
-            print("Invalid input. Try again.")
+            console.print(table)
+        else:
+            print("\nSelect model (or 'q' to cancel):")
+            for i, model_key in enumerate(model_list, 1):
+                print(f"  {i}) {model_key:<4} → {MODELS[model_key]}")
+
+        selected_model = None
+        while True:
+            try:
+                choice = input("\nEnter number: ").strip()
+                if choice.lower() == 'q':
+                    print("Cancelled")
+                    sys.exit(0)
+
+                idx = int(choice) - 1
+                if 0 <= idx < len(model_list):
+                    selected_model = model_list[idx]
+                    break
+                else:
+                    print("Invalid selection. Try again.")
+            except ValueError:
+                print("Invalid input. Try again.")
 
     return selected_persona, selected_model
 
