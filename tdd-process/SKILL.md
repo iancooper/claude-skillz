@@ -422,7 +422,9 @@ Test IS failing. Addressing what the error message demands...
         - Tests written: [count]
         - Refactorings: [count]
         - Violations: [count]
-        - Duration: [time]"
+        - Duration: [time]
+
+        Next: Check if project defines a task workflow. If so, follow it to completion."
 
         IF any validation FAILED:
         "⚠️ VERIFICATION FAILED
