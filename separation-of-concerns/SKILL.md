@@ -6,18 +6,6 @@ version: 1.7.0
 
 # Separation of Concerns
 
-## Mandatory Top-Level Structure
-
-```
-features/      ← verticals
-platform/      ← horizontals
-entrypoints/   ← api, cli, consumers
-```
-
-All three must exist. Start here when implementing, refactoring, or reviewing.
-
----
-
 ## Principles
 
 1. **Separate external clients from domain-specific code**
@@ -31,7 +19,7 @@ All three must exist. Start here when implementing, refactoring, or reviewing.
 **Vertical** = all code for ONE feature, grouped together
 **Horizontal** = capabilities used by MULTIPLE features
 
-Top-level folders distinguish them:
+All three top-level folders are mandatory:
 - `features/` — verticals (work in these)
 - `platform/` — horizontals (build on these)
 - `entrypoints/` — how traffic enters (api, cli, consumers)
@@ -243,6 +231,8 @@ Entry points grouped under `entrypoints/`:
 ---
 
 ## Code Review Tips
+
+Start by verifying the three top-level folders exist (features/, platform/, entrypoints/).
 
 ### For each function
 
