@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 2.2.0
+version: 2.3.0
 ---
 
 # Separation of Concerns
@@ -21,6 +21,7 @@ version: 2.2.0
 
 All three top-level folders are mandatory:
 - `features/` — verticals, each with entrypoint/, use-cases/, domain/
+  - use-cases/ orchestrates workflow; domain/ contains business rules and behavior
 - `platform/` — horizontals, only contains `domain/` and `infra/` (nothing else)
 - `shell/` — thin wiring/routing only (no business logic)
 
@@ -219,9 +220,11 @@ When designing, implementing, refactoring, or reviewing code, complete this chec
 5. [ ] Verify code belonging to one feature is in features/[feature]/
 6. [ ] Verify shared business logic is in platform/domain/ and no dependencies between features
 7. [ ] Verify external service wrappers are in platform/infra/
-8. [ ] Verify custom folders (steps/, handlers/) are inside use-cases/ or domain/, not at feature root
+8. [ ] Verify custom folders (steps/, handlers/) are inside domain/, not use-cases/
 9. [ ] Verify each function relies on same state as others in its class/file and name aligns
 10. [ ] Verify each file name relates to other files in its directory
 11. [ ] Verify each directory name describes what all files inside have in common
+12. [ ] Verify use-cases/ contains only use-case files (no nested folders, no helper files)
+13. [ ] Verify no generic type-grouping files (types.ts, errors.ts, validators.ts) spanning multiple capabilities
 
 Do not proceed until all checks pass.
