@@ -15,7 +15,7 @@ Three-phase design review with dedicated sub-agents. Each agent works independen
 | Role | Skill | Output |
 |------|-------|--------|
 | **Architect** | separation-of-concerns | plan.md |
-| **Refiner** | tactical-ddd | refined.md |
+| **Refiner** | separation-of-concerns + tactical-ddd | refined.md |
 | **Critique** | separation-of-concerns + tactical-ddd | critique.md |
 
 ## Main Agent Checklist
@@ -58,11 +58,12 @@ You are the Refiner. Improve this design by applying tactical DDD patterns.
 Read the design at: docs/design-reviews/[name]/plan.md
 
 Skills to apply:
+- separation-of-concerns
 - tactical-ddd
 
 Your job:
 1. Read the plan.md file first
-2. Apply the tactical-ddd skill thoroughly
+2. Apply the separation-of-concerns and tactical-ddd skills thoroughly
 3. Improve any aspects of the design that you feel can be improved
 4. IMPORTANT: Write your refined design to: docs/design-reviews/[name]/refined.md
 
