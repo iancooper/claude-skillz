@@ -35,7 +35,7 @@ Follow this checklist exactly. Do not skip steps. Do not run phases in parallel.
 
 1. [ ] Call the **Task tool** with these exact parameters:
    - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
-   - `description`: "Architect: create structural plan"
+   - `description`: "Architect: design"
    - `prompt`: (use the prompt below, replacing [name] and [target])
 
 ```
