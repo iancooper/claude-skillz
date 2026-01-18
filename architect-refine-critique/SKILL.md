@@ -98,11 +98,12 @@ Skills to apply:
 
 Your job:
 1. Read the refined.md file first
-2. Find violations of design principles
-3. Question assumptions
-4. Identify ambiguities and gaps
-5. Group findings by severity: CRITICAL, HIGH, MEDIUM, LOW
-6. IMPORTANT: Write your critique to: docs/design-reviews/[name]/critique.md
+2. Find what's wrong (violations, mistakes, contradictions)
+3. Find what could be better (improvements, alternatives)
+4. Find what could be simpler (unnecessary complexity, over-engineering)
+5. Question assumptions and identify gaps
+6. Group findings by severity: CRITICAL, HIGH, MEDIUM, LOW
+7. IMPORTANT: Write your critique to: docs/design-reviews/[name]/critique.md
 
 Be ultra-critical. Include uncertain findings. False positives are better than missed issues.
 You MUST write the file before finishing.
