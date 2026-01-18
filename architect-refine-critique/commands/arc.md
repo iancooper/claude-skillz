@@ -1,40 +1,24 @@
 ---
-description: Three-phase design review (Architect → Refine → Critique) with sub-agents
+description: Three-phase design review (Architect → Refine → Critique)
 ---
 
-# Architect-Refine-Critique
-
-Run a three-phase design review using dedicated sub-agents.
-
-## Usage
+# /arc
 
 `/arc [name] [target]`
 
-- `[name]` — Review name (creates folder at docs/design-reviews/[name]/)
-- `[target]` — What to review (path, PRD, or description)
+Runs three sub-agents sequentially:
+1. Architect → `design.md`
+2. Refiner → `refinements.md` + `refined.md`
+3. Critique → `critique.md`
 
-## Examples
-
-```
-/arc payment-refactor src/payments/
-/arc user-auth-design docs/prd/user-auth.md
-/arc api-restructure "the current API layer"
-```
-
-## What Happens
-
-1. **Architect** sub-agent creates design → `design.md`
-2. **Refiner** sub-agent adds tactical detail → `refined.md`
-3. **Critique** sub-agent challenges the design → `critique.md`
-4. You review and discuss findings with me
-5. Decisions recorded → `decisions.md`
+Then tells you to run `/arc-review [name]`.
 
 ## Output
 
 ```
 docs/design-reviews/[name]/
-├── design.md      ← Architect's design
-├── refined.md     ← Responsibilities, naming
-├── critique.md    ← Challenges by severity
-└── decisions.md   ← Your decisions + rationale
+├── design.md
+├── refinements.md
+├── refined.md
+└── critique.md
 ```
