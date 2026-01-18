@@ -33,8 +33,10 @@ Follow this checklist exactly. Do not skip steps. Do not run phases in parallel.
 
 ### Phase 1: Architect
 
-1. [ ] Spawn a **general-purpose** sub-agent with write permissions
-2. [ ] Use this exact prompt (replace [name] and [target]):
+1. [ ] Call the **Task tool** with these exact parameters:
+   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `description`: "Architect: create structural plan"
+   - `prompt`: (use the prompt below, replacing [name] and [target])
 
 ```
 You are the Architect. Produce the best possible design for this codebase/requirements.
@@ -53,13 +55,15 @@ Your job:
 Be thorough. Produce your best work. You MUST write the file before finishing.
 ```
 
-3. [ ] **WAIT** for the sub-agent to complete
-4. [ ] **VERIFY** docs/design-reviews/[name]/plan.md was written by the sub-agent. If not, abort—do not write it yourself.
+2. [ ] **WAIT** for the sub-agent to complete
+3. [ ] **VERIFY** docs/design-reviews/[name]/plan.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 2: Refiner
 
-5. [ ] Spawn a **general-purpose** sub-agent with write permissions
-6. [ ] Use this exact prompt (replace [name]):
+4. [ ] Call the **Task tool** with these exact parameters:
+   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `description`: "Refiner: improve design"
+   - `prompt`: (use the prompt below, replacing [name])
 
 ```
 You are the Refiner. Improve this design using the skills below.
@@ -79,13 +83,15 @@ Your job:
 Be thorough. Produce your best work. You MUST write the file before finishing.
 ```
 
-7. [ ] **WAIT** for the sub-agent to complete
-8. [ ] **VERIFY** docs/design-reviews/[name]/refined.md was written by the sub-agent. If not, abort—do not write it yourself.
+5. [ ] **WAIT** for the sub-agent to complete
+6. [ ] **VERIFY** docs/design-reviews/[name]/refined.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 3: Critique
 
-9. [ ] Spawn a **general-purpose** sub-agent with write permissions
-10. [ ] Use this exact prompt (replace [name]):
+7. [ ] Call the **Task tool** with these exact parameters:
+   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `description`: "Critique: challenge design"
+   - `prompt`: (use the prompt below, replacing [name])
 
 ```
 You are the Critique. Challenge this design ruthlessly.
@@ -109,18 +115,18 @@ Be ultra-critical. Include uncertain findings. False positives are better than m
 You MUST write the file before finishing.
 ```
 
-11. [ ] **WAIT** for the sub-agent to complete
-12. [ ] **VERIFY** docs/design-reviews/[name]/critique.md was written by the sub-agent. If not, abort—do not write it yourself.
+8. [ ] **WAIT** for the sub-agent to complete
+9. [ ] **VERIFY** docs/design-reviews/[name]/critique.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 4: Facilitated Discussion
 
-13. [ ] Tell user: "Design review complete. Files are at docs/design-reviews/[name]/"
-14. [ ] Ask user to read the documents
-15. [ ] When user is ready, walk through each critique finding one by one
-16. [ ] For each finding: present it, discuss validity and context with user
-17. [ ] Record user's decision and rationale to decisions.md
-18. [ ] Continue until all findings are addressed
-19. [ ] Produce final implementation plan: implementation-plan.md
+10. [ ] Tell user: "Design review complete. Files are at docs/design-reviews/[name]/"
+11. [ ] Ask user to read the documents
+12. [ ] When user is ready, walk through each critique finding one by one
+13. [ ] For each finding: present it, discuss validity and context with user
+14. [ ] Record user's decision and rationale to decisions.md
+15. [ ] Continue until all findings are addressed
+16. [ ] Produce final implementation plan: implementation-plan.md
 
 ## Main Agent Behavior
 
