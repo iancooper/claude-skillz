@@ -54,7 +54,7 @@ Be thorough. Produce your best work. You MUST write the file before finishing.
 ```
 
 3. [ ] **WAIT** for the sub-agent to complete
-4. [ ] **VERIFY** docs/design-reviews/[name]/plan.md exists before proceeding
+4. [ ] **VERIFY** docs/design-reviews/[name]/plan.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 2: Refiner
 
@@ -62,7 +62,7 @@ Be thorough. Produce your best work. You MUST write the file before finishing.
 6. [ ] Use this exact prompt (replace [name]):
 
 ```
-You are the Refiner. Improve this design by applying tactical DDD patterns.
+You are the Refiner. Improve this design using the skills below.
 
 Read the design at: docs/design-reviews/[name]/plan.md
 
@@ -80,7 +80,7 @@ Be thorough. Produce your best work. You MUST write the file before finishing.
 ```
 
 7. [ ] **WAIT** for the sub-agent to complete
-8. [ ] **VERIFY** docs/design-reviews/[name]/refined.md exists before proceeding
+8. [ ] **VERIFY** docs/design-reviews/[name]/refined.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 3: Critique
 
@@ -109,7 +109,7 @@ You MUST write the file before finishing.
 ```
 
 11. [ ] **WAIT** for the sub-agent to complete
-12. [ ] **VERIFY** docs/design-reviews/[name]/critique.md exists before proceeding
+12. [ ] **VERIFY** docs/design-reviews/[name]/critique.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 4: Facilitated Discussion
 
