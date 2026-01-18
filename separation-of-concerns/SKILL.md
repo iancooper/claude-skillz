@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
-description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and entrypoints/ (api, cli, consumers). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 1.7.0
+description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
+version: 1.8.0
 ---
 
 # Separation of Concerns
@@ -20,16 +20,21 @@ version: 1.7.0
 **Horizontal** = capabilities used by MULTIPLE features
 
 All three top-level folders are mandatory:
-- `features/` — verticals (work in these)
-- `platform/` — horizontals (build on these)
-- `entrypoints/` — how traffic enters (api, cli, consumers)
+- `features/` — verticals, each with its own entry point (command.ts, handler.ts, etc.)
+- `platform/` — horizontals, only contains `domain/` and `infra/` (nothing else)
+- `shell/` — thin wiring/routing only (no business logic)
 
 ```
-features/         platform/              entrypoints/
-├── checkout/     ├── domain/            ├── api/
-├── refunds/      │   └── tax-calc/      ├── cli/
-├── inventory/    └── infra/             └── consumers/
-└── shipping/         └── ext-clients/
+features/              platform/              shell/
+├── checkout/          ├── domain/            └── cli.ts
+│   ├── command.ts     │   └── tax-calc/
+│   └── ...            └── infra/
+├── refunds/               └── ext-clients/
+│   ├── command.ts
+│   └── ...
+└── shipping/
+    ├── command.ts
+    └── ...
 ```
 
 ---
@@ -179,48 +184,43 @@ class OrderNotifications { emailClient, templateEngine }
 
 ## Package Structure
 
-Top-level: `features/` and `platform/`. Both can be layered internally:
-
-- **use-cases/** - orchestration, commands, workflows
-- **domain/** - business rules, models, value objects
-- **infra/** - external services, persistence, frameworks
-
-Entry points grouped under `entrypoints/`:
-- **api/** - HTTP controllers
-- **cli/** - CLI commands
-- **consumers/** - event/message consumers
-
 ```
 /food-delivery/
 ├── features/
-│   ├── order-placement/       ← VERTICAL
+│   ├── order-placement/       ← VERTICAL (includes its own entry point)
+│   │   ├── command.ts         ← entry point for this feature
 │   │   ├── use-cases/
 │   │   ├── domain/
 │   │   └── infra/
 │   │
 │   └── driver-tracking/       ← VERTICAL
+│       ├── command.ts
 │       ├── use-cases/
 │       ├── domain/
 │       └── infra/
 │
-├── platform/
+├── platform/                  ← ONLY domain/ and infra/ go here
 │   ├── domain/
 │   │   ├── delivery-fee/      ← shared business rules
-│   │   └── conventions/       ← our rules for the domain
+│   │   └── conventions/       ← our rules
 │   └── infra/
 │       └── external-clients/  ← generic wrappers
 │
-└── entrypoints/               ← HOW TRAFFIC ENTERS
-    ├── api/                   ← HTTP (calls into features)
-    ├── cli/                   ← command line
-    └── consumers/             ← events/messages
+└── shell/                     ← THIN WIRING ONLY
+    └── cli.ts                 ← routes to features, no logic
 ```
+
+### Hard rules
+
+- `platform/` only contains `domain/` and `infra/`. Nothing else. Don't think, just use these two.
+- `shell/` has no business logic. It wires and routes to features.
+- Each feature has its own entry point (command.ts, handler.ts, etc.) — this is what makes it a vertical slice.
 
 ### Platform code rules
 
 - Ask: "Does this conceptually belong to one feature?"
 - YES → `features/`
-- NO → `platform/`, named for what it IS
+- NO → `platform/domain/` or `platform/infra/` depending on what it is
 
 ### Detection: Inside a feature or in platform?
 
@@ -232,7 +232,11 @@ Entry points grouped under `entrypoints/`:
 
 ## Code Review Tips
 
-Start by verifying the three top-level folders exist (features/, platform/, entrypoints/).
+Start with top-level structure:
+1. Three folders exist: features/, platform/, shell/
+2. platform/ only contains domain/ and infra/ (nothing else at root)
+3. Each feature has its own entry point
+4. shell/ has no business logic
 
 ### For each function
 
