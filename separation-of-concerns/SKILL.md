@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 1.8.0
+version: 2.0.0
 ---
 
 # Separation of Concerns
@@ -187,69 +187,69 @@ class OrderNotifications { emailClient, templateEngine }
 ```
 /food-delivery/
 ├── features/
-│   ├── order-placement/       ← VERTICAL (includes its own entry point)
-│   │   ├── command.ts         ← entry point for this feature
-│   │   ├── use-cases/
-│   │   ├── domain/
-│   │   └── infra/
+│   ├── order-placement/       ← VERTICAL
+│   │   ├── command.ts         ← entry point
+│   │   ├── use-cases/         ← MANDATORY
+│   │   ├── domain/            ← MANDATORY
+│   │   └── infra/             ← MANDATORY
 │   │
-│   └── driver-tracking/       ← VERTICAL
+│   └── driver-tracking/
 │       ├── command.ts
 │       ├── use-cases/
 │       ├── domain/
 │       └── infra/
 │
-├── platform/                  ← ONLY domain/ and infra/ go here
-│   ├── domain/
-│   │   ├── delivery-fee/      ← shared business rules
-│   │   └── conventions/       ← our rules
-│   └── infra/
-│       └── external-clients/  ← generic wrappers
+├── platform/
+│   ├── domain/                ← ONLY these two
+│   └── infra/                 ← ONLY these two
 │
-└── shell/                     ← THIN WIRING ONLY
-    └── cli.ts                 ← routes to features, no logic
+└── shell/
+    └── cli.ts
 ```
-
-### Hard rules
-
-- `platform/` only contains `domain/` and `infra/`. Nothing else. Don't think, just use these two.
-- `shell/` has no business logic. It wires and routes to features.
-- Each feature has its own entry point (command.ts, handler.ts, etc.) — this is what makes it a vertical slice.
-
-### Platform code rules
-
-- Ask: "Does this conceptually belong to one feature?"
-- YES → `features/`
-- NO → `platform/domain/` or `platform/infra/` depending on what it is
-
-### Detection: Inside a feature or in platform?
-
-**Look at the siblings:**
-- Siblings are layers (use-cases/, domain/, infra/) → **INSIDE a feature**
-- Siblings are capabilities (delivery-fee/, external-clients/) → **PLATFORM**
 
 ---
 
-## Code Review Tips
+## Mandatory Checklist
 
-Start with top-level structure:
-1. Three folders exist: features/, platform/, shell/
-2. platform/ only contains domain/ and infra/ (nothing else at root)
-3. Each feature has its own entry point
-4. shell/ has no business logic
+When designing, implementing, refactoring, or reviewing code, complete this checklist:
 
-### For each function
+### Top-level structure
+- [ ] features/ exists
+- [ ] platform/ exists
+- [ ] shell/ exists
 
-1. Does it rely on the same state and have a similar name to other functions in the class/file? Does the name align with the class/file name?
-2. If inside a feature, is it only used inside that feature?
+### platform/
+- [ ] contains ONLY domain/ and infra/ (nothing else at platform root)
+- [ ] shared business logic → platform/domain/
+- [ ] external service wrappers → platform/infra/
 
-### For each file
+### shell/
+- [ ] contains NO business logic (thin wiring/routing only)
 
-1. Does the file name seem related to other files in the same directory?
+### Each feature (complete for EVERY feature)
 
-### For each directory
+Feature: _______________
+- [ ] has entry point at root (command.ts, handler.ts)
+- [ ] has use-cases/ folder
+- [ ] has domain/ folder
+- [ ] has infra/ folder
+- [ ] NO other files at feature root
+- [ ] NO other folders at feature root (custom folders go inside use-cases/, domain/, or infra/)
 
-1. Does the directory name describe what all files inside have in common?
-2. Are the sibling directories related? (all features, all layers, or all platform capabilities - not mixed)
-3. If inside a feature, is it only imported within that feature?
-4. Does it contain what it should based on its name? (use-cases/ has orchestration, domain/ has business rules, infra/ has external integrations)
+Feature: _______________
+- [ ] has entry point at root (command.ts, handler.ts)
+- [ ] has use-cases/ folder
+- [ ] has domain/ folder
+- [ ] has infra/ folder
+- [ ] NO other files at feature root
+- [ ] NO other folders at feature root
+
+(repeat for each feature)
+
+### Code placement
+- [ ] code belonging to one feature → features/[feature]/
+- [ ] code used by multiple features → platform/domain/ or platform/infra/
+- [ ] external service wrappers → platform/infra/external-clients/
+- [ ] custom folders (steps/, handlers/) → inside use-cases/, domain/, or infra/
+
+**Do not proceed until all checks pass.**
