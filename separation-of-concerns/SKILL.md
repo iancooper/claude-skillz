@@ -1,10 +1,22 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and entrypoints/ (api, cli, consumers). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 1.6.0
+version: 1.7.0
 ---
 
 # Separation of Concerns
+
+## Mandatory Top-Level Structure
+
+```
+features/      ← verticals
+platform/      ← horizontals
+entrypoints/   ← api, cli, consumers
+```
+
+🚨 **All three MUST exist. Start here when implementing, refactoring, or reviewing.**
+
+---
 
 ## Principles
 
