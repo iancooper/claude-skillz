@@ -67,10 +67,18 @@
       "keywords": ["critical-thinking", "evaluation", "review", "proposals", "decisions"]
     },
     {
+      "name": "architect-refine-critique",
+      "source": "./architect-refine-critique",
+      "description": "Three-phase design review workflow: Architect (structure) → Refiner (tactical detail) → Critique (challenges). Uses sub-agents with human review.",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["architecture", "design-review", "refactoring", "ddd", "separation-of-concerns"]
+    },
+    {
       "name": "development-skills",
       "source": "./",
       "description": "Random skills for various software development tasks",
-      "version": "2.0.36",
+      "version": "2.0.37",
       "category": "development",
       "keywords": ["tdd", "design", "workflow", "personality", "project-setup"],
       "skills": [
@@ -90,7 +98,8 @@
         "./questions-are-not-instructions",
         "./create-tasks",
         "./typescript-backend-project-setup",
-        "./separation-of-concerns"
+        "./separation-of-concerns",
+        "./tactical-ddd"
       ]
     }
   ]

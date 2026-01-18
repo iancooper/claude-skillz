@@ -92,6 +92,37 @@ This repo is a Claude Code plugin marketplace. When adding new skills or plugins
    ]
    ```
 
+### Skill Structure: Always Include a Checklist
+
+**Every skill MUST end with a mandatory checklist.** Checklists make skills actionable and verifiable.
+
+**Why checklists matter:**
+- Turn abstract principles into concrete verification steps
+- Ensure Claude systematically applies the skill
+- Make compliance measurable
+- Catch violations before they ship
+
+**Checklist format:**
+```markdown
+## Mandatory Checklist
+
+When [designing/implementing/reviewing], complete this checklist:
+
+1. [ ] Verify [specific condition]
+2. [ ] Verify [another condition]
+3. [ ] Verify [etc.]
+
+Do not proceed until all checks pass.
+```
+
+**Checklist rules:**
+- Use numbered items (not bullets)
+- Start each item with "Verify" (action-oriented)
+- Be specific and unambiguous
+- Place at the END of the skill (final thing Claude sees)
+
+**Reference:** See `separation-of-concerns/SKILL.md` or `tactical-ddd/SKILL.md` for examples.
+
 ### Adding New Plugins
 
 1. Create plugin directory with `commands/`, `agents/`, or `hooks/`
