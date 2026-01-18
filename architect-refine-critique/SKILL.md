@@ -1,7 +1,7 @@
 ---
 name: Architect-Refine-Critique
 description: "Three-phase design review. Chain architect → refiner → critique subagents."
-version: 1.3.0
+version: 1.3.6
 ---
 
 # Architect-Refine-Critique
