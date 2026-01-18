@@ -23,7 +23,7 @@ Run a three-phase design review using dedicated sub-agents.
 
 ## What Happens
 
-1. **Architect** sub-agent creates structural plan → `plan.md`
+1. **Architect** sub-agent creates design → `design.md`
 2. **Refiner** sub-agent adds tactical detail → `refined.md`
 3. **Critique** sub-agent challenges the design → `critique.md`
 4. You review and discuss findings with me
@@ -33,7 +33,7 @@ Run a three-phase design review using dedicated sub-agents.
 
 ```
 docs/design-reviews/[name]/
-├── plan.md        ← Structure, boundaries
+├── design.md      ← Architect's design
 ├── refined.md     ← Responsibilities, naming
 ├── critique.md    ← Challenges by severity
 └── decisions.md   ← Your decisions + rationale

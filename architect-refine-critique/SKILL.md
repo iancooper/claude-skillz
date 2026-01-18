@@ -14,7 +14,7 @@ Three-phase design review with dedicated sub-agents. Each agent works independen
 
 | Role | Skill | Output |
 |------|-------|--------|
-| **Architect** | separation-of-concerns | plan.md |
+| **Architect** | separation-of-concerns | design.md |
 | **Refiner** | separation-of-concerns + tactical-ddd | refined.md |
 | **Critique** | separation-of-concerns + tactical-ddd | critique.md |
 
@@ -34,7 +34,7 @@ Follow this checklist exactly. Do not skip steps. Do not run phases in parallel.
 ### Phase 1: Architect
 
 1. [ ] Call the **Task tool** with these exact parameters:
-   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `subagent_type`: **"general-purpose"** (ONLY general-purpose has Write access)
    - `description`: "Architect: design"
    - `prompt`: (use the prompt below, replacing [name] and [target])
 
@@ -49,33 +49,33 @@ Skills to apply:
 Your job:
 1. Analyze the codebase or requirements provided
 2. Apply the separation-of-concerns skill thoroughly
-3. Produce a complete design plan
-4. IMPORTANT: Write your plan to: docs/design-reviews/[name]/plan.md
+3. Produce a complete design
+4. IMPORTANT: Write your design to: docs/design-reviews/[name]/design.md
 
 Be thorough. Produce your best work. You MUST write the file before finishing.
 ```
 
 2. [ ] **WAIT** for the sub-agent to complete
-3. [ ] **VERIFY** docs/design-reviews/[name]/plan.md was written by the sub-agent. If not, abort—do not write it yourself.
+3. [ ] **VERIFY** docs/design-reviews/[name]/design.md was written by the sub-agent. If not, abort—do not write it yourself.
 
 ### Phase 2: Refiner
 
 4. [ ] Call the **Task tool** with these exact parameters:
-   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `subagent_type`: **"general-purpose"** (ONLY general-purpose has Write access)
    - `description`: "Refiner: improve design"
    - `prompt`: (use the prompt below, replacing [name])
 
 ```
 You are the Refiner. Improve this design using the skills below.
 
-Read the design at: docs/design-reviews/[name]/plan.md
+Read the design at: docs/design-reviews/[name]/design.md
 
 Skills to apply:
 - separation-of-concerns
 - tactical-ddd
 
 Your job:
-1. Read the plan.md file first
+1. Read the design.md file first
 2. Apply the separation-of-concerns and tactical-ddd skills thoroughly
 3. Improve any aspects of the design that you feel can be improved
 4. IMPORTANT: Write your refined design to: docs/design-reviews/[name]/refined.md
@@ -89,7 +89,7 @@ Be thorough. Produce your best work. You MUST write the file before finishing.
 ### Phase 3: Critique
 
 7. [ ] Call the **Task tool** with these exact parameters:
-   - `subagent_type`: **"general-purpose"** (NOT Plan, NOT Explore—they cannot write files)
+   - `subagent_type`: **"general-purpose"** (ONLY general-purpose has Write access)
    - `description`: "Critique: challenge design"
    - `prompt`: (use the prompt below, replacing [name])
 
@@ -126,7 +126,7 @@ You MUST write the file before finishing.
 13. [ ] For each finding: present it, discuss validity and context with user
 14. [ ] Record user's decision and rationale to decisions.md
 15. [ ] Continue until all findings are addressed
-16. [ ] Produce final implementation plan: implementation-plan.md
+16. [ ] Produce final implementation: implementation.md
 
 ## Main Agent Behavior
 
@@ -144,9 +144,9 @@ You MUST write the file before finishing.
 ```
 docs/design-reviews/
 └── [review-name]/
-    ├── plan.md                 ← Architect writes this
+    ├── design.md                 ← Architect writes this
     ├── refined.md              ← Refiner writes this
     ├── critique.md             ← Critique writes this
     ├── decisions.md            ← Main agent writes this
-    └── implementation-plan.md  ← Main agent writes this
+    └── implementation.md         ← Main agent writes this
 ```
