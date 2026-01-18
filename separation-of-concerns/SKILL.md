@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals) and platform/ (horizontals). Triggers on: code organization, file structure, where does this belong, feature vs platform, new file creation, refactoring."
-version: 1.4.0
+version: 1.5.0
 ---
 
 # Separation of Concerns
@@ -25,10 +25,10 @@ Top-level folders distinguish them:
 
 ```
 features/                    platform/
-├── checkout/                ├── external-clients/
-├── refunds/                 │   (generic wrappers)
-├── inventory/               └── tax-calculation/
-└── shipping/                    (shared domain)
+├── checkout/                ├── domain/
+├── refunds/                 │   └── tax-calculation/
+├── inventory/               └── infra/
+└── shipping/                    └── external-clients/
 ```
 
 ---
@@ -46,12 +46,12 @@ features/                    platform/
 
 ```
 ❌ BAD:
-platform/external-clients/order-total.ts   ← domain logic in platform
-features/checkout/stripe-api.ts            ← external client in feature
+platform/infra/external-clients/order-total.ts   ← domain logic in infra
+features/checkout/stripe-api.ts                  ← external client in feature
 
 ✅ GOOD:
-platform/external-clients/stripe.ts        ← generic: charge, refund, subscribe
-features/checkout/payment-processing.ts    ← OUR domain logic using stripe
+platform/infra/external-clients/stripe.ts        ← generic: charge, refund, subscribe
+features/checkout/payment-processing.ts          ← OUR domain logic using stripe
 ```
 
 ---
@@ -79,7 +79,7 @@ features/refunds/tax-calculator.ts   ← rules diverge over time
 ✅ GOOD - extracted to platform:
 features/checkout/
 features/refunds/
-platform/tax-calculation/            ← horizontal, named for what it IS
+platform/domain/tax-calculation/     ← shared domain logic
 ```
 
 ---
@@ -203,9 +203,11 @@ Entry points live at root or in dedicated folders:
 │       └── infra/
 │
 ├── platform/
-│   ├── delivery-fee/          ← HORIZONTAL (shared domain)
-│   ├── external-clients/      ← HORIZONTAL (generic wrappers)
-│   └── conventions/           ← HORIZONTAL (our rules)
+│   ├── domain/
+│   │   ├── delivery-fee/      ← shared business rules
+│   │   └── conventions/       ← our rules for the domain
+│   └── infra/
+│       └── external-clients/  ← generic wrappers
 │
 ├── api/                       ← ENTRY POINTS (call into features)
 ├── cli/
