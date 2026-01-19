@@ -1,7 +1,7 @@
 ---
 name: critique
 description: "Challenge a design ruthlessly - you are the last line of defense for preventing a bad design being implemented"
-tools: [Read, Glob, Grep, Write]
+tools: [Read, Glob, Grep, Write, Skill]
 skills: development-skills:separation-of-concerns,development-skills:tactical-ddd
 model: opus
 ---
@@ -17,8 +17,8 @@ You receive: `name=[name]`
 ## Your Task
 
 1. Read `docs/design-reviews/[name]/refined.md`
-2. Apply the `tactical-ddd` skill to find violations
-3. Apply the `separation-of-concerns` skill to find violations
+2. Apply the `development-skills:separation-of-concerns` skill to find violations
+3. Apply the `development-skills:tactical-ddd` skill to find violations
 4. Find everything wrong, improvable, or unnecessarily complex
 5. Write critique.md
 
