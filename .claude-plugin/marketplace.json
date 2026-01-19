@@ -70,7 +70,7 @@
       "name": "architect-refine-critique",
       "source": "./architect-refine-critique",
       "description": "Three-phase design review producing an ADR: Architect → Refiner → Critique → Interactive Review. Run /arc-review after to produce the ADR.",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "category": "development",
       "keywords": ["architecture", "design-review", "refactoring", "ddd", "separation-of-concerns"]
     },

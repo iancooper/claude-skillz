@@ -12,9 +12,9 @@ Chain three subagents sequentially from the main conversation.
 
 ## Execution
 
-Use the architect subagent to create the initial design for [target] with name=[name],
-then use the refiner subagent to improve the design with name=[name],
-then use the critique subagent to challenge the design with name=[name].
+Use the architect-refine-critique:architect subagent to create the initial design for [target] with name=[name],
+then use the architect-refine-critique:refiner subagent to improve the design with name=[name],
+then use the architect-refine-critique:critique subagent to challenge the design with name=[name].
 
 After all three complete, tell the user: "Run `/arc-review [name]` to discuss findings."
 
