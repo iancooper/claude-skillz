@@ -21,6 +21,8 @@ You receive: `name=[name] target=[target]`
 
 ## Output
 
-Write to: `docs/design-reviews/[name]/design.md`
+**Output directory:** `docs/design-reviews/[name]/`
+
+Create directory if needed, then write: `docs/design-reviews/[name]/design.md`
 
 After writing the file, return exactly: `FINISHED`

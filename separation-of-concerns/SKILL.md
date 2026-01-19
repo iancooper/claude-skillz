@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 2.3.0
+version: 2.4.0
 ---
 
 # Separation of Concerns
@@ -38,6 +38,39 @@ features/              platform/              shell/
     ├── use-cases/
     └── domain/
 ```
+
+---
+
+## Entrypoint Responsibilities
+
+**What:** Thin mapping layer between external world and use cases.
+
+**Pattern:**
+1. Parse external input into command/request object
+2. Invoke use case
+3. Map result to external response
+
+```typescript
+// ✅ GOOD - thin mapping, no orchestration, no domain
+class OrderController {
+  constructor(private placeOrder: PlaceOrderUseCase) {}
+
+  handle(req: HttpRequest): HttpResponse {
+    const command = parseOrderCommand(req.body)
+    const result = this.placeOrder.execute(command)
+    return mapToHttpResponse(result)
+  }
+}
+```
+
+**Dependency Rules:**
+- ✅ CAN depend on: use-cases/, platform/infra/
+- ❌ FORBIDDEN: domain/ (direct domain imports are not allowed)
+
+**Behavioral Rules:**
+- ❌ NO orchestration (that's use-cases/)
+- ❌ NO domain logic (that's domain/)
+- ✅ Owns input parsing and output mapping
 
 ---
 
@@ -226,5 +259,6 @@ When designing, implementing, refactoring, or reviewing code, complete this chec
 11. [ ] Verify each directory name describes what all files inside have in common
 12. [ ] Verify use-cases/ contains only use-case files (no nested folders, no helper files)
 13. [ ] Verify no generic type-grouping files (types.ts, errors.ts, validators.ts) spanning multiple capabilities
+14. [ ] Verify entrypoint/ is thin (parse input → invoke use-case → map output) and never imports from domain/
 
 Do not proceed until all checks pass.
