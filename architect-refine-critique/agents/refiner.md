@@ -18,3 +18,5 @@ Write TWO files:
 
 - `docs/design-reviews/[name]/refinements.md`
 - `docs/design-reviews/[name]/refined.md`
+
+After writing both files, return exactly: `FINISHED`
