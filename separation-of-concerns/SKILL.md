@@ -1,7 +1,7 @@
 ---
 name: Separation of Concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
-version: 2.4.0
+version: 2.5.0
 ---
 
 # Separation of Concerns
@@ -20,8 +20,10 @@ version: 2.4.0
 **Horizontal** = capabilities used by MULTIPLE features
 
 All three top-level folders are mandatory:
-- `features/` — verticals, each with entrypoint/, use-cases/, domain/
-  - use-cases/ orchestrates workflow; domain/ contains business rules and behavior
+- `features/` — verticals, each with entrypoint/, commands/, queries/, domain/
+  - commands/ orchestrates write operations; MUST go through domain/
+  - queries/ handles read operations; MAY bypass domain/
+  - domain/ contains business rules and behavior (required if commands/ exists)
 - `platform/` — horizontals, only contains `domain/` and `infra/` (nothing else)
 - `shell/` — thin wiring/routing only (no business logic)
 
@@ -31,11 +33,13 @@ infra/ lives in platform/infra/, not inside features.
 features/              platform/              shell/
 ├── checkout/          ├── domain/            └── cli.ts
 │   ├── entrypoint/    │   └── tax-calc/
-│   ├── use-cases/     └── infra/
-│   └── domain/            └── ext-clients/
+│   ├── commands/      └── infra/
+│   ├── queries/           └── ext-clients/
+│   └── domain/
 └── refunds/
     ├── entrypoint/
-    ├── use-cases/
+    ├── commands/
+    ├── queries/
     └── domain/
 ```
 
@@ -43,34 +47,127 @@ features/              platform/              shell/
 
 ## Entrypoint Responsibilities
 
-**What:** Thin mapping layer between external world and use cases.
+**What:** Thin mapping layer between external world and commands/queries.
 
 **Pattern:**
-1. Parse external input into command/request object
-2. Invoke use case
+1. Parse external input into command or query object
+2. Invoke command or query
 3. Map result to external response
 
 ```typescript
-// ✅ GOOD - thin mapping, no orchestration, no domain
 class OrderController {
-  constructor(private placeOrder: PlaceOrderUseCase) {}
+  constructor(
+    private placeOrder: PlaceOrderCommand,
+    private getOrderSummary: GetOrderSummaryQuery
+  ) {}
 
-  handle(req: HttpRequest): HttpResponse {
-    const command = parseOrderCommand(req.body)
-    const result = this.placeOrder.execute(command)
+  post(req: HttpRequest): HttpResponse {
+    const cmd = parseOrderCommand(req.body)
+    const result = this.placeOrder.execute(cmd)
     return mapToHttpResponse(result)
+  }
+
+  get(req: HttpRequest): HttpResponse {
+    const orderId = req.params.id
+    const summary = this.getOrderSummary.execute(orderId)
+    return mapToHttpResponse(summary)
   }
 }
 ```
 
 **Dependency Rules:**
-- ✅ CAN depend on: use-cases/, platform/infra/
-- ❌ FORBIDDEN: domain/ (direct domain imports are not allowed)
+- ✅ CAN depend on: commands/, queries/, platform/infra/
+- ❌ FORBIDDEN: domain/ (entrypoint never imports domain directly)
 
 **Behavioral Rules:**
-- ❌ NO orchestration (that's use-cases/)
+- ❌ NO orchestration (that's commands/)
 - ❌ NO domain logic (that's domain/)
+- ❌ NO data fetching (that's queries/)
 - ✅ Owns input parsing and output mapping
+
+---
+
+## Commands
+
+**What:** Orchestrate write operations that mutate state. Commands MUST go through the domain layer.
+
+**Why strict layering:** Commands change state. Domain invariants must be enforced. Skipping domain/ means business rules can be violated.
+
+**Pattern:**
+1. Receive command input (already parsed by entrypoint)
+2. Load domain aggregates/entities
+3. Execute domain logic (validation, state transitions)
+4. Persist changes
+5. Return result
+
+```typescript
+class ApproveRefundCommand {
+  constructor(private refundRepository: RefundRepository) {}
+
+  execute(input: ApproveRefundInput): Refund {
+    const refund = this.refundRepository.get(input.refundId)
+    refund.approve(input.approvedBy, input.reason)
+    this.refundRepository.save(refund)
+    return refund
+  }
+}
+```
+
+Note: Commands should have a single transaction boundary. If you need external service calls (payment, email), use the outbox pattern—persist domain events in the same transaction, process them asynchronously.
+
+**Dependency Rules:**
+- ✅ MUST depend on: domain/ (this is the point)
+- ✅ CAN depend on: platform/infra/, platform/domain/
+- ❌ FORBIDDEN: other features' commands/, queries/, or domain/
+
+**Behavioral Rules:**
+- ✅ One command = one transaction boundary
+- ✅ All business logic delegated to domain/
+- ❌ NO direct database queries (use repositories from domain/)
+- ❌ NO business rules in command itself
+
+**Naming:** Verb phrase matching the action. `place-order.ts`, `cancel-subscription.ts`, `approve-refund.ts`. Menu test: would this appear on a UI menu?
+
+---
+
+## Queries
+
+**What:** Handle read operations. Queries MAY bypass domain/ for simplicity and performance.
+
+**Why minimal layering:** Queries don't mutate state. No invariants to protect. Optimize for read performance and simplicity.
+
+**Pattern:**
+1. Receive query input (already parsed by entrypoint)
+2. Fetch data (directly from repository/database)
+3. Map to response DTO
+4. Return result
+
+```typescript
+class GetOrderSummaryQuery {
+  constructor(private db: DatabaseClient) {}
+
+  execute(orderId: string): OrderSummary {
+    const row = this.db.query('SELECT ... FROM orders WHERE id = ?', [orderId])
+    if (!row) throw new OrderNotFoundError(orderId)
+    return new OrderSummary(row.id, row.status, Money.from(row.total))
+  }
+}
+```
+
+**Dependency Rules:**
+- ✅ CAN depend on: platform/infra/, platform/domain/
+- ✅ CAN import: domain/ value objects (for validation/typing)
+- ❌ FORBIDDEN: domain/ services or aggregates
+- ❌ FORBIDDEN: commands/
+
+**Behavioral Rules:**
+- ✅ Read-only, no side effects
+- ✅ Can query database directly (no repository required)
+- ✅ Can import value objects from domain/ for response typing
+- ❌ NO state mutations
+- ❌ NO business rule enforcement (queries trust the data)
+
+**Naming:** Verb phrase describing what you're fetching. `get-order-summary.ts`, `list-pending-refunds.ts`, `search-products.ts`.
 
 ---
 
@@ -223,18 +320,18 @@ class OrderNotifications { emailClient, templateEngine }
 /food-delivery/
 ├── features/
 │   ├── order-placement/
-│   │   ├── entrypoint/        ← thin, invokes use-case
-│   │   ├── use-cases/         ← orchestration
-│   │   └── domain/            ← business rules
+│   │   ├── entrypoint/        ← thin, invokes command or query
+│   │   ├── commands/          ← write operations, strict layering
+│   │   ├── queries/           ← read operations, minimal layering
+│   │   └── domain/            ← business rules (required for commands)
 │   │
-│   └── driver-tracking/
+│   └── order-dashboard/       ← read-only feature example
 │       ├── entrypoint/
-│       ├── use-cases/
-│       └── domain/
+│       └── queries/           ← no commands/, no domain/ needed
 │
 ├── platform/
 │   ├── domain/                ← shared business rules
-│   └── infra/                 ← technical concerns (infra lives here, not in features)
+│   └── infra/                 ← technical concerns
 │
 └── shell/
     └── cli.ts
@@ -246,19 +343,33 @@ class OrderNotifications { emailClient, templateEngine }
 
 When designing, implementing, refactoring, or reviewing code, complete this checklist:
 
-1. [ ] Verify features/, platform/, shell/ exist at the root of the package
+**Structure:**
+1. [ ] Verify features/, platform/, shell/ exist at the root
 2. [ ] Verify platform/ contains only domain/ and infra/
-3. [ ] Verify each feature contains only entrypoint/, use-cases/, domain/
+3. [ ] Verify each feature contains only entrypoint/, commands/, queries/, domain/ (all optional except entrypoint/)
 4. [ ] Verify shell/ contains no business logic
-5. [ ] Verify code belonging to one feature is in features/[feature]/
-6. [ ] Verify shared business logic is in platform/domain/ and no dependencies between features
-7. [ ] Verify external service wrappers are in platform/infra/
-8. [ ] Verify custom folders (steps/, handlers/) are inside domain/, not use-cases/
-9. [ ] Verify each function relies on same state as others in its class/file and name aligns
-10. [ ] Verify each file name relates to other files in its directory
-11. [ ] Verify each directory name describes what all files inside have in common
-12. [ ] Verify use-cases/ contains only use-case files (no nested folders, no helper files)
-13. [ ] Verify no generic type-grouping files (types.ts, errors.ts, validators.ts) spanning multiple capabilities
-14. [ ] Verify entrypoint/ is thin (parse input → invoke use-case → map output) and never imports from domain/
+
+**Commands (write path):**
+5. [ ] Verify commands/ exists if feature mutates state
+6. [ ] Verify domain/ exists if commands/ exists
+7. [ ] Verify every command imports from domain/ (commands MUST use domain)
+8. [ ] Verify commands contain no business rules (delegated to domain/)
+9. [ ] Verify commands/ contains only command files (no nested folders, no helpers)
+
+**Queries (read path):**
+10. [ ] Verify queries/ imports only value objects from domain/ (not services/aggregates)
+11. [ ] Verify queries never mutate state
+12. [ ] Verify queries/ contains only query files (no nested folders, no helpers)
+
+**Entrypoint:**
+13. [ ] Verify entrypoint/ is thin (parse → invoke command/query → map output)
+14. [ ] Verify entrypoint/ never imports from domain/
+15. [ ] Verify entrypoint/ only imports from commands/, queries/, platform/infra/
+
+**General:**
+16. [ ] Verify no dependencies between features
+17. [ ] Verify shared business logic is in platform/domain/
+18. [ ] Verify external service wrappers are in platform/infra/
+19. [ ] Verify no generic type-grouping files (types.ts, errors.ts) spanning capabilities
 
 Do not proceed until all checks pass.
