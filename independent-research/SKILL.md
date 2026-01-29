@@ -1,7 +1,7 @@
 ---
 name: independent-research
-description: "Use when about to ask the user a factual question you could answer yourself. Triggers on: 'Do you have X installed?', 'What version are you running?', 'Is X configured?', 'What OS are you using?', 'Which tool do you use for X?'. Also use when recommending solutions, investigating errors, or validating compatibility. Run commands, check docs, and search the web instead of asking."
-version: 1.1.0
+description: "Use when about to ask the user a factual question, propose a solution, diagnose an error, or choose between approaches. Triggers on: 'Do you have X installed?', 'What version?', 'Is X configured?', 'We should...', 'The fix is...', 'Options: 1...', 'Based on my understanding...', 'I believe X supports...'. Before deciding anything, spin up parallel subagents to WebSearch for current docs, community solutions, framework best practices, and GitHub issues. Your memory is stale — verify everything."
+version: 1.2.0
 ---
 
 # Independent Research
@@ -50,6 +50,30 @@ cat .nvmrc 2>/dev/null
 cat package.json | grep -A2 '"engines"'
 git log --oneline -20
 ```
+
+## Premature Decision Detection
+
+If you catch yourself about to recommend, diagnose, or decide without having researched, STOP.
+
+| Premature Decision Signal | What To Do Instead |
+|---|---|
+| "We should downgrade/upgrade X" | Spin up parallel subagents: one to WebSearch the error + framework version, one to fetch the framework's migration/compatibility docs, one to search GitHub issues for the exact error |
+| "The fix is to..." | Search for the exact error message first. Find the GitHub issue. Read the fix. Don't guess from memory |
+| "This is a known issue with X" | Prove it. Fetch the GitHub issue URL, the changelog entry, the docs page. If you can't link to it, you're guessing |
+| "Options: 1. X, 2. Y" | Before presenting options, WebSearch for what the framework/community actually recommends. Check migration guides, official docs, recent blog posts |
+| "I believe X supports Y" / "Based on my understanding" | That's stale memory. WebFetch the actual docs page. Check the release notes. Verify the version compatibility matrix |
+| Choosing between tools/versions/approaches | Launch parallel subagents: one per approach, each researching current docs, community consensus, and known issues |
+| Error you haven't seen before | WebSearch the exact error message in quotes. Check GitHub issues. Check Stack Overflow. Check the framework's Discord/discussions |
+| Recommending a config change | Fetch the framework's current configuration docs. Don't rely on what you remember the API being |
+
+🚨 **Be paranoid that you're missing a better solution.** Your training data is stale. Libraries release weekly. Frameworks ship breaking changes. The answer you "know" may be outdated. Launch subagents to verify in parallel — it costs seconds and saves hours of wrong-direction work.
+
+🚨 **Concrete actions, not vague research:**
+- **WebSearch** the exact error message, the framework + version, the specific compatibility question
+- **WebFetch** the official docs page, the changelog, the migration guide
+- **Launch parallel subagents** when multiple angles need investigating simultaneously
+- **Check GitHub issues** for the exact error — someone has probably hit this before
+- **Read the actual release notes** — don't guess what version supports what
 
 ## When to Ask vs Research
 
