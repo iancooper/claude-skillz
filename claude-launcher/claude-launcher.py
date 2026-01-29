@@ -338,7 +338,7 @@ def process_imports(file_path: Path, persona_name: str) -> str:
                     skill_dir = import_path.parent.name if import_path.name == "SKILL.md" else import_path.stem
                     print(f"  ✓ Found: {skill_dir}", file=sys.stderr)
                     skill_meta = parse_frontmatter(import_path)
-                    skill_id = f"claude-skillz:{skill_dir}"
+                    skill_id = f"development-skills:{skill_dir}"
                     display_name = skill_meta.get("name", skill_dir)
                     imports.append({"id": skill_id, "display_name": display_name})
                     if "description" in skill_meta:
