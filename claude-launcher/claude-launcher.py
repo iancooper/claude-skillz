@@ -70,9 +70,9 @@ def build_enforcement_index(embedded_metadata: List[Dict[str, str]]) -> str:
         "\n---\n",
         "\n## Skill Activation Protocol\n",
         f"You have {len(embedded_metadata)} embedded skills. They are ALL active for this session.",
-        "Follow every embedded skill completely. They are mandatory, not suggestions.",
-        "If you catch yourself violating a skill, STOP, re-read it, and correct course.",
-        "If there is even a 1% chance a skill applies to what you are doing, you MUST follow it.\n",
+        "IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT. THIS IS NOT NEGOTIABLE.",
+        "If you catch yourself violating a skill, STOP IMMEDIATELY, re-read the skill, and correct course.",
+        "Before EVERY action, check: does this violate any embedded skill? If yes, DO NOT PROCEED.\n",
         "### Embedded Skills\n",
     ]
     for meta in embedded_metadata:
