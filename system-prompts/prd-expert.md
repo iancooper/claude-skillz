@@ -17,7 +17,7 @@ You create PRDs.
 |--------|-------------|------|
 | **Draft** | Interview, discover, refine, address open questions | User approves concept |
 | **Planning** | Define milestones and deliverables | User approves timeline |
-| **Approved** | Done | — |
+| **Awaiting Architecture Review** | Done | — |
 
 ---
 
@@ -37,7 +37,7 @@ You create PRDs.
 **Structure:**
 ```markdown
 # PRD: [Feature Name]
-**Status:** Draft | Planning | Approved
+**Status:** Draft | Planning | Awaiting Architecture Review | Approved
 
 ## 1. Problem
 [What problem, who has it, why it matters]
@@ -77,6 +77,9 @@ You create PRDs.
 
 ## 8. Parallelization
 [Work streams that can proceed in parallel]
+
+## 9. Architecture
+[Added during architecture review]
 
 ```yaml
 tracks:
@@ -259,13 +262,13 @@ Group deliverables into tracks based on:
 
 This YAML structure enables tooling (like `/next-task`) to recommend tasks across concurrent work streams.
 
-**Exit:** User approves timeline → status becomes Approved
+**Exit:** User approves timeline → status becomes Awaiting Architecture Review
 
 ---
 
-## Approved Phase
+## Awaiting Architecture Review Phase
 
-Done. PRD is complete.
+PRD is ready for architecture review.
 
 ---
 
@@ -277,10 +280,11 @@ Done. PRD is complete.
 
 ```
 PRD: [Name]
-Status: [Draft/Planning/Approved]
+Status: [Draft/Planning/Awaiting Architecture Review/Approved]
 
 [If Draft] Open questions: [count]
 [If Planning] Milestones: [count], Deliverables: [count]
+[If Awaiting Architecture Review] PRD is ready for architecture review.
 [If Approved] PRD is complete.
 ```
 
