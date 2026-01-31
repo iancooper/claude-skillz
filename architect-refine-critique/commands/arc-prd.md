@@ -22,6 +22,7 @@ Do NOT proceed to Phase 1 until both skills show "Successfully loaded skill".
 1. Read the PRD
 2. Read project conventions — search for: `docs/architecture/`, `ARCHITECTURE.md`, ADRs, `package.json` files, existing folder structure at the project root
 3. Understand the current codebase structure through Glob and Grep
+4. **Capture the current package graph** — run `npx nx show projects` and extract internal dependencies from each package's `package.json` (grep for `"@<org>/` entries). Record every package name and its dependency edges. This is the baseline for the Visual Overview.
 
 ## Phase 2: Analysis
 
@@ -59,7 +60,86 @@ Discuss with user until all questions are resolved and decisions are agreed. Sho
 
 ## Phase 4: Write
 
-Append the `## Architecture` section to the PRD file (replacing the placeholder). Use diagrams where they add clarity. Update the PRD status to "Approved".
+Append the `## Architecture` section to the PRD file (replacing the placeholder). Update the PRD status to "Approved".
+
+### Visual Overview (MANDATORY — write this FIRST)
+
+The architecture section MUST begin with a Visual Overview containing three mermaid diagrams. These diagrams give the reader a 30-second visual summary before detailed decisions.
+
+Use these exact colour definitions across all diagrams:
+
+```
+classDef existing fill:#e8e8e8,stroke:#999,color:#333
+classDef modified fill:#fff3e0,stroke:#f57c00,color:#333,stroke-width:3px
+classDef new fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20,stroke-width:3px
+```
+
+Additional colours for diagram 2 only:
+
+```
+classDef feature fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20,stroke-width:3px
+classDef horizontal fill:#e3f2fd,stroke:#1565c0,color:#0d47a1,stroke-width:3px
+classDef contract fill:#fff3e0,stroke:#f57c00,color:#333,stroke-width:3px
+```
+
+#### Diagram 1: Package Map
+
+Shows ALL packages in the project and their dependency edges. Built from the nx data captured in Phase 1.
+
+- `graph TD` flowchart
+- Every package is a node, classified as `existing`, `modified`, or `new`
+- Existing dependency edges use `-->` with `linkStyle default stroke:#999,stroke-width:1px`
+- New dependency edges use `==>` with green `linkStyle` overrides: `stroke:#2e7d32,stroke-width:3px`
+- New edges are labeled with what crosses the boundary (e.g. `|DraftComponent|`)
+- Followed by a separate legend diagram: `graph LR` with `a[Existing]:::existing ~~~ b[Modified]:::modified ~~~ c[New]:::new`
+
+#### Diagram 2: New Feature Detail
+
+One diagram per new feature (vertical slice) introduced by the PRD. Titled with a markdown heading `### New Feature: <name>`.
+
+- `graph TD` flowchart
+- Subgraphs represent packages — colour the subgraph border to match its status:
+  - New package: `style <id> fill:none,stroke:#2e7d32,stroke-width:3px,color:#1b5e20`
+  - Modified package: `style <id> fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#333`
+  - Existing package: `style <id> fill:#e8e8e8,stroke:#999,stroke-width:2px,color:#333`
+- Inside each package subgraph, show what's new/changed:
+  - New features (verticals) use `feature` class (green)
+  - New shared capabilities (horizontals) use `horizontal` class (blue)
+  - Changed types/interfaces use `contract` class (orange)
+- Show the consumer (what calls this feature) as an existing node at the top
+- Arrow styles: thick green for new usage, thick blue for internal horizontal usage, dotted orange for contract dependencies
+- Followed by a separate legend diagram with: `a[New Feature]:::feature ~~~ b[New Shared Capability]:::horizontal ~~~ c[Changed Type/Interface]:::contract`
+
+#### Diagram 3: Domain Model
+
+Shows domain concepts and their semantic relationships, grouped by package.
+
+- `graph TD` flowchart (NOT erDiagram — classDef not supported in ER diagrams by most renderers)
+- Subgraphs represent packages — same border colour rules as diagram 2
+- Nodes are domain concepts (aggregates, entities, value objects), classified as `existing`, `modified`, or `new`
+- Edges use semantic relationship labels (e.g. `"traced by"`, `"produces"`, `"configures"`) — NOT database cardinality
+- Followed by a separate legend diagram with: `a[Existing]:::existing ~~~ b[Modified]:::modified ~~~ c[New]:::new`
+
+#### External Dependencies
+
+After the three diagrams, add a markdown table:
+
+```
+### External Dependencies
+
+| Dependency | Package | Purpose | Status |
+|-----------|---------|---------|--------|
+```
+
+Status is either `existing` or `NEW`. If no external dependencies, write "None."
+
+### Notation Rules
+
+🚨 **Every visual element must use colour/shape to convey ONE thing only.** Do not encode multiple concepts into the same visual element (e.g. don't put package name and status in the same text label — use node colour for status and text for the name).
+
+🚨 **Containers (subgraphs) represent WHERE code lives.** A reader must be able to look at any node and immediately know which package it belongs to.
+
+🚨 **Colours are consistent across all diagrams.** Grey = existing/unchanged. Orange = modified. Green = new. Blue = shared horizontal capability. Never reuse a colour for a different meaning.
 
 ### Annotate deliverables
 
@@ -89,7 +169,7 @@ The architecture section must answer all of these:
 - For each feature: which layers apply? (entrypoint / commands / queries / domain)
 - What goes in platform/domain vs platform/infra?
 - What external clients are introduced or modified?
-- Dependency direction between packages (ASCII diagram)
+- Dependency direction between packages (shown in Package Map diagram)
 
 ### Domain model (from tactical-ddd)
 
