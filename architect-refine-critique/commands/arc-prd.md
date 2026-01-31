@@ -95,7 +95,7 @@ Shows ALL packages in the project and their dependency edges. Built from the nx 
 
 #### Diagram 2: New Feature Detail
 
-One diagram per new feature (vertical slice) introduced by the PRD. Titled with a markdown heading `### New Feature: <name>`.
+🚨 **ONE diagram per new feature.** Do NOT combine multiple features into a single diagram. Each feature gets its own mermaid diagram with its own markdown heading `### New Feature: <name>`.
 
 - `graph TD` flowchart
 - Subgraphs represent packages — colour the subgraph border to match its status:
@@ -112,7 +112,9 @@ One diagram per new feature (vertical slice) introduced by the PRD. Titled with 
 
 #### Diagram 3: Domain Model
 
-Shows domain concepts and their semantic relationships, grouped by package.
+🚨 **ONE diagram per connected group of domain concepts.** Only group concepts in the same diagram if they have dependency relationships (edges between them). If the PRD introduces domain changes that are unrelated to each other, they MUST be separate diagrams. Each diagram gets its own markdown heading `### Domain Model: <name>`.
+
+**Splitting rule:** After drafting the domain model, check if the diagram contains multiple disconnected subgraphs (groups of nodes with no edges between them). If yes, split into separate diagrams — each with its own title. A single diagram must be a connected graph.
 
 - `graph TD` flowchart (NOT erDiagram — classDef not supported in ER diagrams by most renderers)
 - Subgraphs represent packages — same border colour rules as diagram 2
