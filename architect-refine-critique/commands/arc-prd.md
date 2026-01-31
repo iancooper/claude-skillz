@@ -9,9 +9,13 @@ Read the PRD at `$ARGUMENTS`. Verify its status is "Awaiting Architecture Review
 
 You are adding the architecture section that makes this PRD implementable. The PRD defines *what* to build — you define *how to structure it* at the package, feature, and domain model level. Not implementation details. Not function signatures. Structural decisions and domain modeling only.
 
-## Skills
+## Step 0: Load Skills (MANDATORY — do this FIRST)
 
-Use skill `development-skills:separation-of-concerns` and skill `development-skills:tactical-ddd`. Apply both throughout all phases.
+Before doing anything else, call both of these:
+1. Skill(development-skills:separation-of-concerns)
+2. Skill(development-skills:tactical-ddd)
+
+Do NOT proceed to Phase 1 until both skills show "Successfully loaded skill".
 
 ## Phase 1: Research
 
