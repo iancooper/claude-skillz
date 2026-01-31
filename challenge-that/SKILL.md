@@ -1,5 +1,5 @@
 ---
-name: Challenge That
+name: challenge-that
 description: "Force critical evaluation of proposals, requirements, or decisions by analyzing from multiple adversarial perspectives. Triggers on: accepting a proposal without pushback, 'sounds good', 'let's go with', design decisions with unstated tradeoffs, unchallenged assumptions, premature consensus. Invoke with /challenge-that."
 version: 1.0.0
 ---

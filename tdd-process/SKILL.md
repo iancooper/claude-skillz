@@ -1,5 +1,5 @@
 ---
-name: TDD Process
+name: tdd-process
 description: "Strict test-driven development state machine with red-green-refactor cycles. Enforces test-first development, meaningful failures, minimum implementations, and full verification. Activates when user requests: 'use a TDD approach', 'start TDD', 'test-drive this'."
 version: 1.0.0
 ---

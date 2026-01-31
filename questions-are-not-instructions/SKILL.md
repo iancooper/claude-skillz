@@ -1,5 +1,5 @@
 ---
-name: Engage Before Acting
+name: questions-are-not-instructions
 description: "Engage with what the user said before taking action. Triggers on: questions ('?'), feedback ('this is wrong', 'that doesn't look right', 'there are issues'), challenges ('why did you', 'have you considered'), criticism ('this isn't working', 'I don't like'), observations ('I notice', 'it seems like'), naming a skill or concept. STOP and respond to the user's actual words before doing anything."
 version: 1.1.0
 ---

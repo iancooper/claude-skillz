@@ -1,5 +1,5 @@
 ---
-name: Concise Output
+name: concise-output
 description: "Enforces brevity and signal-over-noise in all outputs. Eliminates verbose explanations, filler phrases, and unnecessary elaboration. Triggers on: every response (governs output length and density when loaded)."
 version: 1.0.0
 ---

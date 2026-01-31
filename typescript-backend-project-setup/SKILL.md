@@ -1,5 +1,5 @@
 ---
-name: NX Monorepo TypeScript Backend Project Setup
+name: typescript-backend-project-setup
 description: "Sets up NX monorepo for TypeScript backend projects optimized for AI-assisted development. Delegates to NX commands where possible, patches configs as last resort. Triggers on: 'set up typescript backend project', 'create backend project', 'initialize typescript backend', 'create monorepo', or when working in an empty project folder."
 version: 3.0.9
 ---

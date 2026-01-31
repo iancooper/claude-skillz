@@ -1,5 +1,5 @@
 ---
-name: Data Visualization
+name: data-visualization
 description: "Comprehensive data visualization skill covering visual execution and technical implementation. Includes perceptual foundations, chart selection, layout algorithms, and library guidance. Triggers on: charts, graphs, dashboards, 'visualize', 'plot', data presentation, D3, Recharts, Victory."
 version: 1.0.0
 ---

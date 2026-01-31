@@ -1,5 +1,5 @@
 ---
-name: Confidence Honesty
+name: confidence-honesty
 description: "Force honest confidence assessment before claiming conclusions. Triggers on 'root cause identified', 'problem identified', 'complete clarity'. Express confidence as percentage, explain what's stopping 100%, validate assumptions before presenting."
 version: 1.0.0
 ---

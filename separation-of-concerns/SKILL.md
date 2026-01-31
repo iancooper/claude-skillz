@@ -1,5 +1,5 @@
 ---
-name: Separation of Concerns
+name: separation-of-concerns
 description: "Enforces code organization using features/ (verticals), platform/ (horizontals), and shell/ (thin wiring). Triggers on: code organization, file structure, where does this belong, new file creation, refactoring."
 version: 2.5.1
 ---

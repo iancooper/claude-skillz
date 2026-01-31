@@ -1,5 +1,5 @@
 ---
-name: Lightweight Task Workflow
+name: lightweight-task-workflow
 description: "FOLLOW THE STATE MACHINE IN SKILL.MD. When user says 'continue': (1) FIRST: Run pwd, (2) Announce STATE: CHECK_STATUS, (3) Read .claude/session.md to check Status field, (4) Route based on Status. NEVER auto-advance tasks. NEVER use TodoWrite. NEVER create git commits."
 version: 1.0.0
 ---

@@ -1,5 +1,5 @@
 ---
-name: Writing Tests
+name: writing-tests
 description: "Principles for writing effective, maintainable tests. Covers naming conventions, assertion best practices, and comprehensive edge case checklists. Based on BugMagnet by Gojko Adzic. Triggers on: writing any test, 'add tests', test review, test naming, assertion choices, edge case coverage, 'what should I test', test structure decisions."
 version: 1.0.0
 ---

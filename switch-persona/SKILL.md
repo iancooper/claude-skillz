@@ -1,5 +1,5 @@
 ---
-name: Switch Persona
+name: switch-persona
 description: "Quick persona switching. Triggers: 'switch persona', 'switch to X', 'become X'. Lists personas, reads selected file, switches immediately."
 version: 2.0.0
 ---

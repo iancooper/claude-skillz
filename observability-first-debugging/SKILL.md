@@ -1,5 +1,5 @@
 ---
-name: Observability-First Debugging
+name: observability-first-debugging
 description: "Systematic debugging methodology that eliminates guessing and speculation. Add instrumentation to gather specific data that fully explains the problem. Evidence before hypothesis. Observation before solution. Triggers on: debugging, error investigation, 'why is this failing', unexpected behavior, test failures, non-zero exit codes, stack traces."
 version: 1.0.0
 ---
