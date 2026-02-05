@@ -8,8 +8,10 @@ Features:
 - Model shortcuts: cl haik, cl sonn, cl opus (uses default persona)
 - Frontmatter-based shortcuts (no hardcoding)
 - @ reference processing for skill imports
+- Team support: auto-discovers agent files in sibling directories
 """
 
+import json
 import os
 import sys
 import subprocess
@@ -25,6 +27,7 @@ LAUNCHER_DIR = Path(__file__).parent.parent
 SYSTEM_PROMPTS_DIR = LAUNCHER_DIR / "system-prompts"
 GLOBAL_PROMPTS_DIR = Path.home() / ".claude" / "system-prompts"
 DEBUG_OUTPUT = Path("/tmp/claude-launcher-debug.md")
+DEBUG_AGENTS_OUTPUT = Path("/tmp/claude-launcher-agents.json")
 
 MODELS = {
     "opus": "opus",
@@ -97,6 +100,7 @@ def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
         if not prompt_dir.exists():
             continue
 
+        # Solo personas: *.md files
         for file_path in sorted(prompt_dir.glob("*.md")):
             metadata = parse_frontmatter(file_path)
 
@@ -106,6 +110,26 @@ def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
             if "shortcut" in metadata:
                 shortcut = metadata["shortcut"]
                 personas[shortcut] = file_path
+
+        # Teams: directories with "team" in the name, containing lead.md
+        for dir_path in sorted(prompt_dir.iterdir()):
+            if not dir_path.is_dir():
+                continue
+            if "team" not in dir_path.name:
+                continue
+            lead_file = dir_path / "lead.md"
+            if not lead_file.exists():
+                print(f"  ✗ WARNING: Team directory {dir_path.name}/ has no lead.md — skipping", file=sys.stderr)
+                continue
+
+            metadata = parse_frontmatter(lead_file)
+
+            if "name" in metadata:
+                names[metadata["name"]] = lead_file
+
+            if "shortcut" in metadata:
+                shortcut = metadata["shortcut"]
+                personas[shortcut] = lead_file
 
     return personas, names
 
@@ -386,6 +410,162 @@ This persona system prompt takes precedence over the default Claude Code system 
     return header + body + enforcement
 
 # ============================================================================
+# Team Agent Loading
+# ============================================================================
+
+def parse_agent_file(file_path: Path) -> Tuple[Dict[str, str], str]:
+    """
+    Parse an agent .md file into frontmatter and body.
+
+    Returns (metadata, body) where body is everything after frontmatter.
+    """
+    metadata = {}
+    body_lines = []
+    in_frontmatter = False
+    past_frontmatter = False
+
+    with open(file_path) as f:
+        first_line = f.readline().strip()
+        if first_line == "---":
+            in_frontmatter = True
+            for line in f:
+                if line.strip() == "---":
+                    past_frontmatter = True
+                    break
+                if ":" in line:
+                    key, value = line.split(":", 1)
+                    metadata[key.strip()] = value.strip()
+        else:
+            body_lines.append(first_line + "\n")
+            past_frontmatter = True
+
+        if past_frontmatter:
+            for line in f:
+                body_lines.append(line)
+
+    return metadata, "".join(body_lines).strip()
+
+
+def process_agent_body(file_path: Path, body: str) -> str:
+    """
+    Process @ references in an agent's body, expanding skill imports inline.
+    """
+    result = []
+    errors = []
+    skill_count = 0
+
+    for line in body.split("\n"):
+        match = re.match(r'^\s*-?\s*@([^\s]+)\s*$', line)
+        if match:
+            import_path = match.group(1)
+            import_path = import_path.replace("~", str(Path.home()))
+            if not import_path.startswith("/"):
+                import_path = str(file_path.parent / import_path)
+
+            import_path = Path(import_path)
+            if import_path.exists():
+                skill_dir = import_path.parent.name if import_path.name == "SKILL.md" else import_path.stem
+                print(f"    ✓ Skill: {skill_dir}", file=sys.stderr)
+                skill_count += 1
+                with open(import_path) as skill_file:
+                    result.append(skill_file.read())
+                    result.append("\n\n")
+            else:
+                print(f"    ✗ ERROR: Skill not found: {import_path}", file=sys.stderr)
+                errors.append(str(import_path))
+        else:
+            result.append(line + "\n")
+
+    if errors:
+        print(f"\nERROR: Agent {file_path.name} failed to load {len(errors)} skill(s):", file=sys.stderr)
+        for err in errors:
+            print(f"  - {err}", file=sys.stderr)
+        sys.exit(1)
+
+    return "".join(result).strip(), skill_count
+
+
+def parse_tools_field(tools_str: str) -> List[str]:
+    """Parse tools field from frontmatter: '[Read, Write, Edit]' -> ['Read', 'Write', 'Edit']"""
+    tools_str = tools_str.strip("[]")
+    return [t.strip() for t in tools_str.split(",") if t.strip()]
+
+
+def load_team_agents(prompt_file: Path) -> Optional[Dict]:
+    """
+    If prompt_file is a lead.md inside a team directory, load all sibling .md files as agents.
+    Returns None if this is a solo persona (not inside a team directory).
+    """
+    if prompt_file.name != "lead.md":
+        return None
+
+    team_dir = prompt_file.parent
+    agent_files = sorted(f for f in team_dir.glob("*.md") if f.name != "lead.md")
+    if not agent_files:
+        print(f"\n✗ ERROR: Team directory {team_dir.name}/ has no agent files (only lead.md)", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\nLoading team agents from {team_dir.name}/...", file=sys.stderr)
+
+    agents = {}
+    for agent_file in agent_files:
+        metadata, body = parse_agent_file(agent_file)
+
+        # Validate required fields
+        if not metadata:
+            print(f"\n✗ ERROR: Agent file missing frontmatter: {agent_file}", file=sys.stderr)
+            sys.exit(1)
+        if "name" not in metadata:
+            print(f"\n✗ ERROR: Agent file missing 'name' in frontmatter: {agent_file}", file=sys.stderr)
+            sys.exit(1)
+        if "description" not in metadata:
+            print(f"\n✗ ERROR: Agent file missing 'description' in frontmatter: {agent_file}", file=sys.stderr)
+            sys.exit(1)
+        if not body:
+            print(f"\n✗ ERROR: Agent file has no prompt content: {agent_file}", file=sys.stderr)
+            sys.exit(1)
+
+        agent_name = metadata["name"]
+        description = metadata["description"].strip('"').strip("'")
+
+        # Process @ references in agent body
+        processed_body, skill_count = process_agent_body(agent_file, body)
+
+        # Build agent definition
+        agent_def = {
+            "description": description,
+            "prompt": processed_body,
+        }
+
+        if "tools" in metadata:
+            agent_def["tools"] = parse_tools_field(metadata["tools"])
+
+        if "model" in metadata:
+            agent_def["model"] = metadata["model"]
+
+        agents[agent_name] = agent_def
+
+        tools_count = len(agent_def.get("tools", []))
+        print(f"  ✓ Agent: {agent_name} ({tools_count} tools, {skill_count} skills)", file=sys.stderr)
+
+    print(f"\nTeam loaded: {len(agents)} agents ready", file=sys.stderr)
+    return agents
+
+
+def build_agent_manifest(agents: Dict) -> str:
+    """Build a manifest section to inject into the lead's system prompt."""
+    lines = [
+        "\n---\n",
+        "\n## Loaded Team Agents\n",
+        "The following agents were loaded by the launcher and are available via the Task tool:\n",
+    ]
+    for name, agent_def in agents.items():
+        lines.append(f"- **{name}**: {agent_def['description']}")
+    lines.append("\nUse these exact names as `subagent_type` when spawning teammates.\n")
+    return "\n".join(lines)
+
+
+# ============================================================================
 # Claude Code Binary
 # ============================================================================
 
@@ -464,13 +644,28 @@ def main():
     print("Processing system prompt...", file=sys.stderr)
     system_prompt = process_imports(selected_file, persona_name)
 
+    # Load team agents if sibling directory exists
+    team_agents = load_team_agents(selected_file)
+    if team_agents:
+        system_prompt += build_agent_manifest(team_agents)
+        print(f"Mode: Team ({len(team_agents)} agents)", file=sys.stderr)
+    else:
+        print("Mode: Solo", file=sys.stderr)
+
     with open(DEBUG_OUTPUT, 'w') as f:
         f.write(system_prompt)
 
     lines = system_prompt.count('\n')
     bytes_count = len(system_prompt.encode('utf-8'))
-    print(f"\nDebug: Processed system prompt saved to {DEBUG_OUTPUT}", file=sys.stderr)
+    print(f"\nDebug: System prompt saved to {DEBUG_OUTPUT}", file=sys.stderr)
     print(f"       ({lines} lines, {bytes_count} bytes)", file=sys.stderr)
+
+    if team_agents:
+        with open(DEBUG_AGENTS_OUTPUT, 'w') as f:
+            json.dump(team_agents, f, indent=2)
+        agents_bytes = DEBUG_AGENTS_OUTPUT.stat().st_size
+        print(f"Debug: Agents JSON saved to {DEBUG_AGENTS_OUTPUT}", file=sys.stderr)
+        print(f"       ({len(team_agents)} agents, {agents_bytes} bytes)", file=sys.stderr)
 
     # Export persona for statusline
     os.environ["CLAUDE_PERSONA"] = persona_name
@@ -482,6 +677,9 @@ def main():
 
     # Build command
     cmd = [claude_cmd, "--system-prompt", system_prompt, "--model", MODELS[model_key]]
+
+    if team_agents:
+        cmd.extend(["--agents", json.dumps(team_agents)])
 
     # No intro for shortcut mode, add for interactive
     if len(sys.argv) == 1:

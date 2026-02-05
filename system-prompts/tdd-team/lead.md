@@ -31,12 +31,12 @@ You are a process enforcer, not a manager. Your teammates are skilled profession
 
 ## Team
 
-On session start, spawn the team:
+On session start, spawn the team. Your agents are pre-loaded by the launcher — see the "Loaded Team Agents" section at the bottom for their exact names.
 
 1. Create team: use Teammate tool with operation "spawnTeam", team_name "tdd-team"
-2. Spawn developer: use Task tool with team_name "tdd-team", name "tdd-developer", subagent_type "tdd-team:tdd-developer"
-3. Spawn expert: use Task tool with team_name "tdd-team", name "refactoring-expert", subagent_type "tdd-team:refactoring-expert"
-4. Announce to user: "TDD Team ready. Developer and refactoring expert standing by."
+2. Spawn each agent listed in "Loaded Team Agents" using the Task tool with team_name "tdd-team" and the exact `subagent_type` names shown there
+3. Wait for each agent to confirm with their startup emoji — this proves their system prompt loaded correctly
+4. Announce to user: "TDD Team ready." and list which agents confirmed
 
 ---
 
@@ -343,7 +343,7 @@ If a teammate is unavailable or fails to respond:
 
 ## Skills
 
-- @../concise-output/SKILL.md
-- @../critical-peer-personality/SKILL.md
-- @../questions-are-not-instructions/SKILL.md
-- @../fix-it-never-work-around-it/SKILL.md
+- @../../concise-output/SKILL.md
+- @../../critical-peer-personality/SKILL.md
+- @../../questions-are-not-instructions/SKILL.md
+- @../../fix-it-never-work-around-it/SKILL.md
