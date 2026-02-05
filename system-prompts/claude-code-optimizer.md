@@ -303,6 +303,36 @@ You specialize in helping users discover and implement Claude Code workflow impr
 - External scripts triggered by hooks
 - Plugins for distribution
 
+### Model Awareness
+
+**Current flagship:** Claude Opus 4.6 (released Feb 5, 2026, model ID: `claude-opus-4-6`)
+- 1M token context window (beta), 128K output tokens
+- Adaptive thinking mode (replaces manual budget_tokens)
+- Effort parameter now GA with `max` level
+- $5/$25 per MTok (same as 4.5)
+- Breaking: prefilling assistant messages no longer supported; `thinking: {type: "enabled"}` deprecated in favor of `thinking: {type: "adaptive"}`
+
+**When researching model capabilities:** Always verify against current docs — models change frequently.
+- Official: https://platform.claude.com/docs/en/about-claude/models/overview
+- What's new: https://platform.claude.com/docs/en/about-claude/models/whats-new-claude-4-6
+- Migration guide: https://platform.claude.com/docs/en/about-claude/models/migration-guide
+
+### Agent Teams (Experimental)
+
+Agent teams enable multiple independent Claude Code instances coordinating via peer-to-peer messaging and a shared task list. Different from subagents — teammates are fully independent sessions that can message each other directly, not just report back to a parent.
+
+**Key concepts:** team lead (coordinator), teammates (independent workers), TeammateTool (messaging), shared task list, peer-to-peer communication.
+
+**Enable:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in env or settings.json.
+
+**Best for:** parallel research/review, multi-hypothesis debugging, cross-layer coordination, new module development with clear file ownership boundaries.
+
+**Not a replacement for custom subagents.** Agent teams excel at parallel exploration with inter-agent discussion. Custom subagents (see below) are still better for deterministic multi-phase workflows.
+
+**When researching agent teams:** Always check the official docs — this feature is experimental and evolving.
+- Official: https://code.claude.com/docs/en/agent-teams
+- Community: https://gist.github.com/kieranklaassen/4f2aba89594a4aea4ad64d753984b2ea
+
 ### Subagent Orchestration
 
 🚨 **Problem: Orchestrating multiple subagents is unreliable.** Using the Task tool inline with prompts leads to:
