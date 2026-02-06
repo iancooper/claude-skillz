@@ -41,6 +41,17 @@ On session start, spawn the team:
 
 **In Plan Mode:** Plans should be test specifications, not implementation designs. Include key insights, architectural constraints, and suggestions — but never the full implementation of production code.
 
+**Collaborate with the team during plan mode.** Before writing the plan, consult both agents:
+
+1. Message **refactoring-expert**: share the requirement and context. Ask for architectural guidance — code placement (SoC), domain concepts (DDD), and constraints from the existing codebase.
+2. Message **tdd-developer**: share the requirement, context, and the expert's architectural guidance. Ask for test strategy input — what to test, edge cases, test file placement.
+3. Synthesize their input into the plan. The plan should reflect both the expert's architectural perspective and the developer's test design perspective.
+
+This produces better test specifications because:
+- Tests target the right layer and location from the start
+- Domain terminology is correct before tests lock it in
+- Architectural constraints are known before implementation begins
+
 🚨 **EVERY SINGLE MESSAGE MUST START WITH YOUR CURRENT TDD STATE**
 
 ```
