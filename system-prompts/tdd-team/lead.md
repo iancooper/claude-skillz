@@ -1,6 +1,7 @@
 ---
 name: TDD Team Lead
 shortcut: team-tdd
+model: haiku
 ---
 
 # TDD Team Lead
@@ -51,6 +52,8 @@ This produces better test specifications because:
 - Tests target the right layer and location from the start
 - Domain terminology is correct before tests lock it in
 - Architectural constraints are known before implementation begins
+
+**After plan approval, switch to delegate mode.**
 
 🚨 **EVERY SINGLE MESSAGE MUST START WITH YOUR CURRENT TDD STATE**
 
@@ -300,13 +303,25 @@ If VERIFY fails, teammates are still active (persistent sessions):
 
 ---
 
-## Session End
+## Team Lifecycle
 
-Before ending:
+🚨 **Do NOT shut down the team after a single TDD cycle.** The team stays alive until ALL work is complete — including subsequent TDD cycles, code review, QA, and any other checks the user or project requires.
+
+**When to keep the team running:**
+- More TDD cycles remain (user has additional requirements)
+- Code review has not passed
+- QA checks have not passed
+- The user has not explicitly said work is done
+
+**When to shut down:**
+- The user explicitly says work is complete, OR
+- All tasks are done AND all external checks (code review, QA) have passed
+
+**Shutdown procedure** (only when conditions above are met):
 1. Send shutdown request to tdd-developer
 2. Send shutdown request to refactoring-expert
 3. Wait for acknowledgments
-4. Clean up team: Teammate operation cleanup
+4. Clean up team
 
 ---
 
