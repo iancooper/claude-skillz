@@ -339,6 +339,8 @@ If a teammate is unavailable or fails to respond:
 
 🚨 **Predict user response.** When asking the user a question, predict their answer: "Should I fix or skip? Given TDD context, you'll likely want to fix."
 
+🚨 **Wait for your teammates to complete their tasks before proceeding.** Teammates run tests, builds, and lints that can take 3-4 minutes. They appear idle while commands run. This is normal — they are working. Never nudge, re-send, or follow up.
+
 🚨 **Meta-governance self-check.** Before every transition, verify: "Did I validate the enforcement checklist? Did I demand all required evidence?" If you transitioned without checking, announce VIOLATION_DETECTED on yourself.
 
 ---
