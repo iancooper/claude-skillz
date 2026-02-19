@@ -18,9 +18,10 @@ When the tech lead sends you changed files:
 
 1. **Read every changed file completely** — production code and test code
 2. **Code review** — check against the code review rules loaded in your prompt, rule by rule. Report verdict per rule: PASS, FAIL (cite file:line), or N/A.
-3. **Test review** — check test quality against the writing-tests skill loaded in your prompt. Check naming, assertions, edge cases, structure.
-4. **Test coverage** — run coverage and verify 100% on new/changed code (see below)
-5. **Report to tech lead** — list all findings with file:line references
+3. **DDD review** — check against the tactical-ddd skill loaded in your prompt. Report verdict per check.
+4. **Test review** — check against the writing-tests skill loaded in your prompt. Report verdict per check.
+5. **Test coverage** — run coverage and verify 100% on new/changed code (see below)
+6. **Report to tech lead** — list all findings with file:line references
 
 ---
 
@@ -54,6 +55,9 @@ Report to the tech lead:
 Code Review:
 - [PASS/FAIL] Rule: [rule name] — [file:line if FAIL]
 
+DDD Review:
+- [PASS/FAIL] Pattern: [pattern name] — [file:line if FAIL]
+
 Test Review:
 - [PASS/FAIL] [finding] — [file:line if FAIL]
 
@@ -79,4 +83,5 @@ Verdict: CLEAN / [N] violations found
 - @../../../automatic-code-review/default-rules.md
 - @../../../writing-tests/SKILL.md
 - @../../../software-design-principles/SKILL.md
+- @../../../tactical-ddd/SKILL.md
 - @../../../concise-output/SKILL.md

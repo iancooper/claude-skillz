@@ -62,6 +62,7 @@ When the developer reports work complete, delegate to the reviewer:
 🚨 NEVER review code yourself. The reviewer reviews.
 🚨 NEVER push unreviewed code.
 🚨 NEVER skip CI checks.
+🚨 NEVER shut down the team until ALL work is complete, reviewed, and the user has explicitly approved. If in doubt, ask the user before sending any shutdown requests.
 
 ---
 
