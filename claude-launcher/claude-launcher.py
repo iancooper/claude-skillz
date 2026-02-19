@@ -8,7 +8,7 @@ Features:
 - Model shortcuts: cl haik, cl sonn, cl opus (uses default persona)
 - Frontmatter-based shortcuts (no hardcoding)
 - @ reference processing for skill imports
-- Team support: auto-discovers agent files in sibling directories
+- Team support: declarative teams via teams/*/team.yaml
 """
 
 import json
@@ -25,7 +25,9 @@ from typing import Dict, List, Tuple, Optional
 
 LAUNCHER_DIR = Path(__file__).parent.parent
 SYSTEM_PROMPTS_DIR = LAUNCHER_DIR / "system-prompts"
+TEAMS_DIR = SYSTEM_PROMPTS_DIR / "teams"
 GLOBAL_PROMPTS_DIR = Path.home() / ".claude" / "system-prompts"
+GLOBAL_TEAMS_DIR = GLOBAL_PROMPTS_DIR / "teams"
 DEBUG_OUTPUT = Path("/tmp/claude-launcher-debug.md")
 DEBUG_AGENTS_OUTPUT = Path("/tmp/claude-launcher-agents.json")
 
@@ -83,6 +85,143 @@ def build_enforcement_index(embedded_metadata: List[Dict[str, str]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def parse_team_yaml(file_path: Path) -> Dict:
+    """
+    Parse a team.yaml file into structured data.
+
+    Expected format:
+        name: Team Name
+        shortcut: xxx
+
+        team:
+          - name: member-one
+            model: opus
+          - name: member-two
+    """
+    result = {"members": []}
+    current_member = None
+    in_team = False
+
+    with open(file_path) as f:
+        for line in f:
+            stripped = line.strip()
+            if not stripped:
+                continue
+
+            if stripped == "team:":
+                in_team = True
+                continue
+
+            if not in_team:
+                if ":" in stripped:
+                    key, value = stripped.split(":", 1)
+                    result[key.strip()] = value.strip()
+                continue
+
+            # Inside team list
+            if stripped.startswith("- name:"):
+                if current_member:
+                    result["members"].append(current_member)
+                name = stripped.split(":", 1)[1].strip()
+                current_member = {"name": name}
+            elif stripped.startswith("model:") and current_member:
+                current_member["model"] = stripped.split(":", 1)[1].strip()
+
+        if current_member:
+            result["members"].append(current_member)
+
+    return result
+
+
+def resolve_team_member(member_name: str, team_dir: Path, prompt_dirs: List[Path]) -> Optional[Path]:
+    """
+    Resolve a team member name to a .md file.
+
+    Search order:
+    1. Sibling file in team directory: <team_dir>/<member_name>.md
+    2. System prompt in each prompt directory: <prompt_dir>/<member_name>.md
+    """
+    # Check sibling file
+    sibling = team_dir / f"{member_name}.md"
+    if sibling.exists():
+        return sibling
+
+    # Check system prompt directories
+    for prompt_dir in prompt_dirs:
+        candidate = prompt_dir / f"{member_name}.md"
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
+def load_team_from_yaml(team_yaml: Path, prompt_dirs: List[Path]) -> Tuple[Path, str, Dict]:
+    """
+    Load a team from team.yaml.
+
+    Returns (lead_file, persona_name, agents_dict) where:
+    - lead_file: resolved path to the lead's .md file
+    - persona_name: team name from yaml
+    - agents_dict: {agent_name: {description, prompt, model?}} for non-lead members
+    """
+    team_dir = team_yaml.parent
+    config = parse_team_yaml(team_yaml)
+
+    if not config.get("members"):
+        print(f"\n✗ ERROR: team.yaml has no team members: {team_yaml}", file=sys.stderr)
+        sys.exit(1)
+
+    persona_name = config.get("name", team_dir.name)
+    members = config["members"]
+
+    # First member is the lead
+    lead_member = members[0]
+    lead_file = resolve_team_member(lead_member["name"], team_dir, prompt_dirs)
+    if not lead_file:
+        print(f"\n✗ ERROR: Could not resolve lead '{lead_member['name']}' — checked {team_dir} and system-prompts/", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\nLoading team '{persona_name}' from {team_yaml.relative_to(LAUNCHER_DIR)}...", file=sys.stderr)
+    print(f"  ✓ Lead: {lead_member['name']} → {lead_file.name}", file=sys.stderr)
+
+    # Remaining members are agents
+    agents = {}
+    for member in members[1:]:
+        member_name = member["name"]
+        member_file = resolve_team_member(member_name, team_dir, prompt_dirs)
+        if not member_file:
+            print(f"\n✗ ERROR: Could not resolve member '{member_name}' — checked {team_dir} and system-prompts/", file=sys.stderr)
+            sys.exit(1)
+
+        # Process the member's file through process_imports (full @ expansion)
+        member_meta = parse_frontmatter(member_file)
+        description = member_meta.get("description", member_meta.get("name", member_name))
+        description = description.strip('"').strip("'")
+
+        print(f"  Processing agent: {member_name} → {member_file.name}", file=sys.stderr)
+        processed_prompt = process_imports(member_file, member_name)
+
+        agent_def = {
+            "description": description,
+            "prompt": processed_prompt,
+        }
+
+        if "model" in member:
+            agent_def["model"] = member["model"]
+        elif "model" in member_meta:
+            agent_def["model"] = member_meta["model"]
+
+        if "tools" in member_meta:
+            tools_str = member_meta["tools"].strip("[]")
+            agent_def["tools"] = [t.strip() for t in tools_str.split(",") if t.strip()]
+
+        agents[member_name] = agent_def
+        print(f"  ✓ Agent: {member_name}", file=sys.stderr)
+
+    print(f"\nTeam loaded: 1 lead + {len(agents)} agent(s)", file=sys.stderr)
+    return lead_file, persona_name, agents, lead_member.get("model")
+
+
 def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
     """
     Load all system prompts and build shortcut maps.
@@ -94,6 +233,7 @@ def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
     """
     personas = {}
     names = {}
+    team_yamls = {}  # shortcut -> team.yaml Path
 
     # Search both directories
     for prompt_dir in [SYSTEM_PROMPTS_DIR, GLOBAL_PROMPTS_DIR]:
@@ -111,27 +251,28 @@ def load_prompts() -> Tuple[Dict[str, Path], Dict[str, Path]]:
                 shortcut = metadata["shortcut"]
                 personas[shortcut] = file_path
 
-        # Teams: directories with "team" in the name, containing lead.md
-        for dir_path in sorted(prompt_dir.iterdir()):
-            if not dir_path.is_dir():
+    # Declarative teams: teams/*/team.yaml
+    for teams_dir in [TEAMS_DIR, GLOBAL_TEAMS_DIR]:
+        if not teams_dir.exists():
+            continue
+
+        for team_dir in sorted(teams_dir.iterdir()):
+            if not team_dir.is_dir():
                 continue
-            if "team" not in dir_path.name:
-                continue
-            lead_file = dir_path / "lead.md"
-            if not lead_file.exists():
-                print(f"  ✗ WARNING: Team directory {dir_path.name}/ has no lead.md — skipping", file=sys.stderr)
+            team_yaml = team_dir / "team.yaml"
+            if not team_yaml.exists():
                 continue
 
-            metadata = parse_frontmatter(lead_file)
+            config = parse_team_yaml(team_yaml)
+            if "shortcut" in config:
+                shortcut = config["shortcut"]
+                # Store the team.yaml path — we'll resolve the lead file later
+                personas[shortcut] = team_yaml
+                team_yamls[shortcut] = team_yaml
+            if "name" in config:
+                names[config["name"]] = team_yaml
 
-            if "name" in metadata:
-                names[metadata["name"]] = lead_file
-
-            if "shortcut" in metadata:
-                shortcut = metadata["shortcut"]
-                personas[shortcut] = lead_file
-
-    return personas, names
+    return personas, names, team_yamls
 
 # ============================================================================
 # CLI Interface
@@ -409,148 +550,6 @@ This persona system prompt takes precedence over the default Claude Code system 
     enforcement = build_enforcement_index(embedded_metadata)
     return header + body + enforcement
 
-# ============================================================================
-# Team Agent Loading
-# ============================================================================
-
-def parse_agent_file(file_path: Path) -> Tuple[Dict[str, str], str]:
-    """
-    Parse an agent .md file into frontmatter and body.
-
-    Returns (metadata, body) where body is everything after frontmatter.
-    """
-    metadata = {}
-    body_lines = []
-    in_frontmatter = False
-    past_frontmatter = False
-
-    with open(file_path) as f:
-        first_line = f.readline().strip()
-        if first_line == "---":
-            in_frontmatter = True
-            for line in f:
-                if line.strip() == "---":
-                    past_frontmatter = True
-                    break
-                if ":" in line:
-                    key, value = line.split(":", 1)
-                    metadata[key.strip()] = value.strip()
-        else:
-            body_lines.append(first_line + "\n")
-            past_frontmatter = True
-
-        if past_frontmatter:
-            for line in f:
-                body_lines.append(line)
-
-    return metadata, "".join(body_lines).strip()
-
-
-def process_agent_body(file_path: Path, body: str) -> str:
-    """
-    Process @ references in an agent's body, expanding skill imports inline.
-    """
-    result = []
-    errors = []
-    skill_count = 0
-
-    for line in body.split("\n"):
-        match = re.match(r'^\s*-?\s*@([^\s]+)\s*$', line)
-        if match:
-            import_path = match.group(1)
-            import_path = import_path.replace("~", str(Path.home()))
-            if not import_path.startswith("/"):
-                import_path = str(file_path.parent / import_path)
-
-            import_path = Path(import_path)
-            if import_path.exists():
-                skill_dir = import_path.parent.name if import_path.name == "SKILL.md" else import_path.stem
-                print(f"    ✓ Skill: {skill_dir}", file=sys.stderr)
-                skill_count += 1
-                with open(import_path) as skill_file:
-                    result.append(skill_file.read())
-                    result.append("\n\n")
-            else:
-                print(f"    ✗ ERROR: Skill not found: {import_path}", file=sys.stderr)
-                errors.append(str(import_path))
-        else:
-            result.append(line + "\n")
-
-    if errors:
-        print(f"\nERROR: Agent {file_path.name} failed to load {len(errors)} skill(s):", file=sys.stderr)
-        for err in errors:
-            print(f"  - {err}", file=sys.stderr)
-        sys.exit(1)
-
-    return "".join(result).strip(), skill_count
-
-
-def parse_tools_field(tools_str: str) -> List[str]:
-    """Parse tools field from frontmatter: '[Read, Write, Edit]' -> ['Read', 'Write', 'Edit']"""
-    tools_str = tools_str.strip("[]")
-    return [t.strip() for t in tools_str.split(",") if t.strip()]
-
-
-def load_team_agents(prompt_file: Path) -> Optional[Dict]:
-    """
-    If prompt_file is a lead.md inside a team directory, load all sibling .md files as agents.
-    Returns None if this is a solo persona (not inside a team directory).
-    """
-    if prompt_file.name != "lead.md":
-        return None
-
-    team_dir = prompt_file.parent
-    agent_files = sorted(f for f in team_dir.glob("*.md") if f.name != "lead.md")
-    if not agent_files:
-        print(f"\n✗ ERROR: Team directory {team_dir.name}/ has no agent files (only lead.md)", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"\nLoading team agents from {team_dir.name}/...", file=sys.stderr)
-
-    agents = {}
-    for agent_file in agent_files:
-        metadata, body = parse_agent_file(agent_file)
-
-        # Validate required fields
-        if not metadata:
-            print(f"\n✗ ERROR: Agent file missing frontmatter: {agent_file}", file=sys.stderr)
-            sys.exit(1)
-        if "name" not in metadata:
-            print(f"\n✗ ERROR: Agent file missing 'name' in frontmatter: {agent_file}", file=sys.stderr)
-            sys.exit(1)
-        if "description" not in metadata:
-            print(f"\n✗ ERROR: Agent file missing 'description' in frontmatter: {agent_file}", file=sys.stderr)
-            sys.exit(1)
-        if not body:
-            print(f"\n✗ ERROR: Agent file has no prompt content: {agent_file}", file=sys.stderr)
-            sys.exit(1)
-
-        agent_name = metadata["name"]
-        description = metadata["description"].strip('"').strip("'")
-
-        # Process @ references in agent body
-        processed_body, skill_count = process_agent_body(agent_file, body)
-
-        # Build agent definition
-        agent_def = {
-            "description": description,
-            "prompt": processed_body,
-        }
-
-        if "tools" in metadata:
-            agent_def["tools"] = parse_tools_field(metadata["tools"])
-
-        if "model" in metadata:
-            agent_def["model"] = metadata["model"]
-
-        agents[agent_name] = agent_def
-
-        tools_count = len(agent_def.get("tools", []))
-        print(f"  ✓ Agent: {agent_name} ({tools_count} tools, {skill_count} skills)", file=sys.stderr)
-
-    print(f"\nTeam loaded: {len(agents)} agents ready", file=sys.stderr)
-    return agents
-
 
 
 # ============================================================================
@@ -595,7 +594,7 @@ def find_claude_cmd() -> str:
 
 def main():
     """Main entry point."""
-    personas, names = load_prompts()
+    personas, names, team_yamls = load_prompts()
 
     if not personas:
         print("Error: No system prompts found", file=sys.stderr)
@@ -619,21 +618,42 @@ def main():
         # Interactive mode
         selected_file, model_key = interactive_select(personas)
 
-    # Get persona name from frontmatter
-    metadata = parse_frontmatter(selected_file)
-    persona_name = metadata.get("name", selected_file.stem)
+    # Determine if this is a team.yaml selection
+    prompt_dirs = [d for d in [SYSTEM_PROMPTS_DIR, GLOBAL_PROMPTS_DIR] if d.exists()]
+    is_team_yaml = selected_file.name == "team.yaml"
 
-    print(f"\nSelected: {persona_name}")
-    model_display = next((k for k, v in MODELS.items() if v == MODELS[model_key]), model_key)
-    print(f"Model: {model_display}")
-    print()
+    if is_team_yaml:
+        # Declarative team: resolve from team.yaml
+        lead_file, persona_name, team_agents, lead_model = load_team_from_yaml(selected_file, prompt_dirs)
 
-    # Process imports
-    print("Processing system prompt...", file=sys.stderr)
-    system_prompt = process_imports(selected_file, persona_name)
+        # Lead model: team.yaml > CLI arg
+        if lead_model and lead_model in MODELS:
+            model_key = lead_model
 
-    # Load team agents if sibling directory exists
-    team_agents = load_team_agents(selected_file)
+        print(f"\nSelected: {persona_name} (team)")
+        model_display = next((k for k, v in MODELS.items() if v == MODELS[model_key]), model_key)
+        print(f"Model: {model_display}")
+        print()
+
+        # Process lead's system prompt
+        print("Processing lead system prompt...", file=sys.stderr)
+        system_prompt = process_imports(lead_file, persona_name)
+
+    else:
+        # Solo persona
+        metadata = parse_frontmatter(selected_file)
+        persona_name = metadata.get("name", selected_file.stem)
+
+        print(f"\nSelected: {persona_name}")
+        model_display = next((k for k, v in MODELS.items() if v == MODELS[model_key]), model_key)
+        print(f"Model: {model_display}")
+        print()
+
+        # Process imports
+        print("Processing system prompt...", file=sys.stderr)
+        system_prompt = process_imports(selected_file, persona_name)
+        team_agents = None
+
     if team_agents:
         print(f"Mode: Team ({len(team_agents)} agents)", file=sys.stderr)
     else:

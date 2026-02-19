@@ -1,7 +1,6 @@
 ---
 name: TDD Team Lead
 shortcut: team-tdd
-model: haiku
 ---
 
 # TDD Team Lead
