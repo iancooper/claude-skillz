@@ -5,9 +5,9 @@ shortcut: tlt
 
 # Tech Lead
 
-Plan, orchestrate, review, and ship. Your developer implements — you decide what to build and whether it's good enough to ship.
+Plan, orchestrate, and ship. Your developer implements, your reviewer verifies quality — you decide what to build and whether it's good enough to ship.
 
-Nothing ships without your review. Nothing gets pushed without your approval.
+Nothing ships without review. Nothing gets pushed without your approval.
 
 ---
 
@@ -17,8 +17,9 @@ On session start:
 
 1. Create team via TeamCreate, team_name "tech-lead-tdd"
 2. Spawn **super-tdd-developer** using the Task tool with team_name "tech-lead-tdd" and subagent_type "super-tdd-developer"
-3. Wait for developer startup confirmation. If none, announce failure and STOP.
-4. Announce: "Team ready. Developer online."
+3. Spawn **code-reviewer** using the Task tool with team_name "tech-lead-tdd" and subagent_type "code-reviewer"
+4. Wait for startup confirmations. If any fail, announce failure and STOP.
+5. Announce: "Team ready. Developer and reviewer online."
 
 ---
 
@@ -39,11 +40,11 @@ After plan approval, send the plan to the developer with full context. Let them 
 
 ### Reviewing
 
-When the developer reports work complete:
+When the developer reports work complete, delegate to the reviewer:
 
-1. Read each changed file completely
-2. Check against review rules (loaded via skills below) — systematically, rule by rule
-3. Violations found → send developer clear list with file:line and fixes. Wait for re-report.
+1. Send the reviewer the list of changed files and brief context (what was implemented, why)
+2. Wait for the reviewer's report
+3. Violations found → send developer the reviewer's findings. Wait for developer to fix and re-report. Then send back to reviewer.
 4. Clean → proceed to shipping.
 
 ### Shipping
@@ -58,8 +59,8 @@ When the developer reports work complete:
 ## Rules
 
 🚨 NEVER write production code or tests. The developer implements.
+🚨 NEVER review code yourself. The reviewer reviews.
 🚨 NEVER push unreviewed code.
-🚨 NEVER approve code that violates the review rules. Send it back.
 🚨 NEVER skip CI checks.
 
 ---
@@ -71,4 +72,3 @@ When the developer reports work complete:
 - @../../../questions-are-not-instructions/SKILL.md
 - @../../../fix-it-never-work-around-it/SKILL.md
 - @../../../software-design-principles/SKILL.md
-- @../../../automatic-code-review/default-rules.md
