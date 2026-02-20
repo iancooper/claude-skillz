@@ -18,6 +18,7 @@ Design, refactor, analyze, and review code by applying the principles and patter
 6. **Make the implicit explicit... like your life depends on it**
 7. **Design aggregates around invariants**
 8. **Extract immutable value objects liberally**
+9. **Repositories are for loading and saving full aggregates**
 
 ---
 
@@ -464,6 +465,20 @@ class Money {
 - EmailAddress, PhoneNumber, URL
 - Quantity, Weight, Temperature
 - PersonName, CompanyName
+
+---
+
+## 9. Repositories are for loading and saving full aggregates
+
+The job of a repository is to load and save entire aggregates - not partial aggregates or nested entities inside an aggregate. The `load` method takes and ID and returns the full aggregate.
+
+A repository should not exist for a domain object that is not an aggregate. Entity that is part of an aggreate -> does not have a repository. It is loaded via the aggregate root's repository.
+
+The `hydrate` method is used ONLY for constructing an aggregate from it's persisted state. It should not be abused for other use cases like creating new instances.
+
+The `save` method of a repository should take the full aggregate.
+
+If you just want to query information to display without modifying state and applying business rules, create a separate read model object and don't use a repository.
 
 ---
 
