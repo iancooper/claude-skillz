@@ -470,11 +470,11 @@ class Money {
 
 ## 9. Repositories are for loading and saving full aggregates
 
-The job of a repository is to load and save entire aggregates - not partial aggregates or nested entities inside an aggregate. The `load` method takes and ID and returns the full aggregate.
+The job of a repository is to load and save entire aggregates - not partial aggregates or nested entities inside an aggregate. The `load` method takes an ID and returns the full aggregate.
 
 A repository should not exist for a domain object that is not an aggregate. Entity that is part of an aggreate -> does not have a repository. It is loaded via the aggregate root's repository.
 
-The `hydrate` method is used ONLY for constructing an aggregate from it's persisted state. It should not be abused for other use cases like creating new instances.
+The `hydrate` method is used ONLY for constructing an aggregate from it's persisted state. It should not be abused for other use cases like creating new instances. Each creation flow should have a dedicated factory method, e.g. `Order.fromExisting()`, `Order.new()`, `Order.draft()`.
 
 The `save` method of a repository should take the full aggregate.
 
@@ -494,5 +494,6 @@ When designing, refactoring, analyzing, or reviewing code:
 6. [ ] Verify hidden domain concepts are extracted and named explicitly
 7. [ ] Verify aggregates are designed around invariants, not naive mapping of domain nouns
 8. [ ] Verify values are extracted into value objects expressing a domain concept
+9. [ ] Veirfy no abuse of hydrate methods for creation scenarios. Each creation scenario must have dedicated factory method
 
 Do not proceed until all checks pass.
