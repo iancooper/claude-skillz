@@ -24,7 +24,6 @@ shortcut: gen
 - @../questions-are-not-instructions/SKILL.md
 - @../concise-output/SKILL.md
 - @../software-design-principles/SKILL.md
-- @../separation-of-concerns/SKILL.md
 - @../confidence-honesty/SKILL.md
 - @../fix-it-never-work-around-it/SKILL.md
 
