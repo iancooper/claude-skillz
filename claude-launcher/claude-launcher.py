@@ -10,6 +10,7 @@ Features:
 - @ reference processing for skill imports
 - Team support: declarative teams via teams/*/team.yaml
 - Worktree passthrough: -w / --worktree [name]
+- Sandbox mode: --sandbox [repo-path] (runs via docker sandbox)
 """
 
 import json
@@ -402,27 +403,34 @@ def interactive_select(personas: Dict[str, Path]) -> Tuple[Path, str]:
     return selected_persona, selected_model
 
 
-def extract_passthrough_flags(args: list) -> Tuple[list, list]:
+def extract_passthrough_flags(args: list) -> Tuple[list, list, Optional[str]]:
     """
     Extract Claude Code flags that should be passed through unchanged.
 
     Currently supports:
     - -w / --worktree [name]  (name is optional)
+    - --sandbox               (sandbox mode: uses cwd, auto-adds --worktree)
 
     Returns:
-        (remaining_args, passthrough_flags) where passthrough_flags
-        are ready to extend onto the cmd list.
+        (remaining_args, passthrough_flags, sandbox_repo) where:
+        - passthrough_flags are ready to extend onto the cmd list
+        - sandbox_repo is the repo path if --sandbox was given (None otherwise)
     """
     remaining = []
     passthrough = []
+    sandbox_repo = None
     i = 0
 
     while i < len(args):
         arg = args[i]
 
+        if arg == "--sandbox":
+            sandbox_repo = os.getcwd()
+            i += 1
+            continue
+
         if arg in ("-w", "--worktree"):
             passthrough.append("--worktree")
-            # Check if next arg is the worktree name (not another flag/shortcut)
             if i + 1 < len(args) and not args[i + 1].startswith("-"):
                 i += 1
                 passthrough.append(args[i])
@@ -440,7 +448,11 @@ def extract_passthrough_flags(args: list) -> Tuple[list, list]:
         remaining.append(arg)
         i += 1
 
-    return remaining, passthrough
+    # Sandbox mode: always add --worktree if not already specified
+    if sandbox_repo is not None and "--worktree" not in passthrough:
+        passthrough.append("--worktree")
+
+    return remaining, passthrough, sandbox_repo
 
 
 def resolve_args(args: list, personas: Dict[str, Path]) -> Tuple[Path, str]:
@@ -644,7 +656,7 @@ def main():
 
     # Extract passthrough flags before parsing launcher args
     raw_args = sys.argv[1:]
-    launcher_args, passthrough_flags = extract_passthrough_flags(raw_args)
+    launcher_args, passthrough_flags, sandbox_repo = extract_passthrough_flags(raw_args)
 
     # Show header for interactive mode (no persona/model args)
     if not launcher_args:
@@ -723,29 +735,36 @@ def main():
     # Export persona for statusline
     os.environ["CLAUDE_PERSONA"] = persona_name
     print(f"Persona: {persona_name}")
+    if sandbox_repo:
+        print(f"Sandbox: {sandbox_repo}")
     if passthrough_flags:
         print(f"Flags: {' '.join(passthrough_flags)}")
     print()
     print("Launching Claude Code...\n")
 
-    # Find Claude binary
-    claude_cmd = find_claude_cmd()
-
-    # Build command
-    cmd = [claude_cmd, "--system-prompt", system_prompt, "--model", MODELS[model_key]]
+    # Build claude flags (shared between direct and sandbox modes)
+    claude_flags = ["--system-prompt", system_prompt, "--model", MODELS[model_key]]
 
     if team_agents:
-        cmd.extend(["--agents", json.dumps(team_agents)])
+        claude_flags.extend(["--agents", json.dumps(team_agents)])
 
     # Append passthrough flags (e.g., --worktree)
     if passthrough_flags:
-        cmd.extend(passthrough_flags)
+        claude_flags.extend(passthrough_flags)
 
     # No intro for shortcut mode, add for interactive
     if not launcher_args:
-        cmd.append("introduce yourself")
+        claude_flags.append("introduce yourself")
 
     # Execute
+    if sandbox_repo:
+        # Sandbox mode: docker sandbox run claude <repo> -- <flags>
+        cmd = ["docker", "sandbox", "run", "claude", sandbox_repo, "--"] + claude_flags
+    else:
+        # Direct mode: claude <flags>
+        claude_cmd = find_claude_cmd()
+        cmd = [claude_cmd] + claude_flags
+
     try:
         os.execvp(cmd[0], cmd)
     except Exception as e:
