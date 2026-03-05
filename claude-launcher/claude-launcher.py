@@ -758,7 +758,10 @@ def main():
 
     # Execute
     if sandbox_repo:
-        # Sandbox mode: docker sandbox run claude <repo> -- <flags>
+        # Sandbox mode: remove existing sandbox, then create fresh
+        sandbox_name = "claude-" + os.path.basename(sandbox_repo)
+        subprocess.run(["docker", "sandbox", "rm", sandbox_name],
+                       capture_output=True)
         cmd = ["docker", "sandbox", "run", "--pull-template", "always", "claude", sandbox_repo, "--"] + claude_flags
     else:
         # Direct mode: claude <flags>
