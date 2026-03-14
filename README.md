@@ -155,7 +155,7 @@ Skills are reusable behavioral instructions loaded into personas. Load them with
 
 ### Composability
 
-System prompts use @ references to load skills. See [CLAUDE.md](CLAUDE.md) for composability guidelines and [launcher docs](claude-launcher/README.md#adding-your-own-personas) for creating custom personas.
+System prompts use @ references to load skills. See [CLAUDE.md](CLAUDE.md) for composability guidelines and [launcher docs](claude-launcher/README.md#adding-your-own-personas) for creating custom personas.a
 
 ## Plugins
 
