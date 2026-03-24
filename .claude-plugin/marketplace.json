@@ -125,6 +125,14 @@
         "./tactical-ddd",
         "./fix-it-never-work-around-it"
       ]
+    },
+    {
+      "name": "fetching-circleci-logs",
+      "source": "./fetching-circleci-logs",
+      "description": "Fetch CircleCI job logs via v1.1 API with step-level output and failure analysis",
+      "version": "1.0.0",
+      "category": "development",
+      "keywords": ["circleci", "ci", "build-logs", "debugging", "pr-checks"]
     }
   ]
 }
